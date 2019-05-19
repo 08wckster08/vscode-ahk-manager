@@ -31,7 +31,8 @@
 	},
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [{
+		"commands": [
+			{
 				"command": "ahk.compile",
 				"title": "Compile Script",
 				"category": "AHK",
@@ -52,6 +53,11 @@
 			{
 				"command": "ahk.spy",
 				"title": "Window Spy",
+				"category": "AHK"
+			},
+			{
+				"command": "ahk.temporary-switch-executable",
+				"title": "Temporary Switch Executable",
 				"category": "AHK"
 			}
 		],
