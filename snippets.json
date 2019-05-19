@@ -1,5 +1,5 @@
 {
-    "Sublime Header": {
+    "Default Sublime Header": {
         "prefix": "#AHK-PerformanceHeader",
         "body": [
             "#SingleInstance, Force",

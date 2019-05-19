@@ -31,24 +31,28 @@
 	},
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [
-			{
+		"commands": [{
 				"command": "ahk.compile",
 				"title": "Compile Script",
 				"category": "AHK",
-				"icon":"./media/package.svg"
+				"icon": "./media/package.svg"
+			},
+			{
+				"command": "ahk.compile-as",
+				"title": "Compile Script As",
+				"category": "AHK"
 			},
 			{
 				"command": "ahk.run",
 				"title": "Run Script",
 				"category": "AHK",
-				"icon":"./media/run.svg"
+				"icon": "./media/run.svg"
 			},
 			{
 				"command": "ahk.run-buffer",
 				"title": "Run As Piped Buffer",
 				"category": "AHK",
-				"icon":"./media/zap.svg"
+				"icon": "./media/zap.svg"
 			},
 			{
 				"command": "ahk.spy",
@@ -57,7 +61,7 @@
 			},
 			{
 				"command": "ahk.temporary-switch-executable",
-				"title": "Temporary Switch Executable",
+				"title": "Switch Executable (Temporary)",
 				"category": "AHK"
 			}
 		],
@@ -69,10 +73,10 @@
 			"title": "AutoHotkey Manager configuration",
 			"type": "object",
 			"properties": {
-				"ahk.executableFullPath":{
+				"ahk.executableFullPath": {
 					"title": "Ahk executable full path",
-					"type":"string",
-					"default":"%programfiles%\\AutoHotKey\\AutoHotkey.exe",
+					"type": "string",
+					"default": "C:\\Program Files\\AutoHotKey\\AutoHotkey.exe",
 					"description": "Set the ahk executables full path"
 				},
 				"ahk.displayButtons": {
@@ -89,10 +93,10 @@
 					"description": "Specifies whether automatically call a snippet, by its name, header on empty .ahk files",
 					"scope": "resource"
 				},
-				"ahk.onEmpty.overrideHeaderSnippet":{
+				"ahk.onEmpty.overrideHeaderSnippet": {
 					"title": "Header snippet override",
-					"type":"string",
-					"default":"#AHK-PerformanceHeader",
+					"type": "string",
+					"default": "Default Sublime Header",
 					"description": "Override the default header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
 					"scope": "resource"
 				},
@@ -113,8 +117,7 @@
 			}
 		}],
 		"menus": {
-			"editor/title": [
-				{
+			"editor/title": [{
 					"when": "resourceLangId == ahk && config.ahk.displayButtons && resourceScheme == file",
 					"command": "ahk.compile",
 					"group": "navigation@1"
@@ -133,7 +136,19 @@
 		},
 		"keybindings": [{
 			"command": "ahk.compile",
-			"key": "ctrl+alt+b",
+			"key": "Ctrl+Shift+B",
+			"when": "resourceLangId == ahk"
+		}, {
+			"command": "ahk.compile-as",
+			"key": "ctrl+A Ctrk+C",
+			"when": "resourceLangId == ahk"
+		}, {
+			"command": "ahk.spy",
+			"key": "ctrl+A ctrl+S",
+			"when": "resourceLangId == ahk"
+		}, {
+			"command": "ahk.run",
+			"key": "Ctrl+A Ctrl+R",
 			"when": "resourceLangId == ahk"
 		}]
 	},
