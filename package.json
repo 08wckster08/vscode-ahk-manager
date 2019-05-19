@@ -63,46 +63,46 @@
 			"title": "AutoHotkey Manager configuration",
 			"type": "object",
 			"properties": {
-				"ahk.initializeHeader": {
-					"title": "initialize with header",
+				"ahk.executableFolderPath":{
+					"title": "Ahk directory",
+					"type":"string",
+					"default":"%programfiles%\\AutoHotKey",
+					"description": "Set the ahk executables directory path"
+				},
+				"ahk.showButtons": {
+					"title": "Show buttons",
+					"description": "Specifies whether to show buttons in the editor",
 					"type": "boolean",
 					"default": true,
-					"description": "Specify whether automatically put an header to newely created .ahk files",
 					"scope": "resource"
 				},
-				"ahk.headerSnippet":{
-					"title": "header snippet override",
+				"ahk.onEmpty.initializeWithHeaderSnippet": {
+					"title": "Initialize with an header snippet",
+					"type": "boolean",
+					"default": true,
+					"description": "Specifies whether automatically call a snippet, by its name, header on empty .ahk files",
+					"scope": "resource"
+				},
+				"ahk.onEmpty.overrideHeaderSnippet":{
+					"title": "Header snippet override",
 					"type":"string",
 					"default":"#AHK-PerformanceHeader",
-					"description": "Override the header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
+					"description": "Override the default header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
 					"scope": "resource"
 				},
-				"ahk.runOnSave": {
+				"ahk.onSave.compile": {
+					"title": "Compile on Save",
+					"description": "Activate Build on Save.",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
+				},
+				"ahk.onSave.run": {
 					"title": "Run on Save",
 					"description": "Activate Run on Save (`Ctrl`+`S`)",
 					"type": "boolean",
 					"default": false,
 					"scope": "resource"
-				},
-				"ahk.buildOnSave": {
-					"title": "Build on Save",
-					"description": "Activate Build on Save (`Ctrl`+`S`)... if `Run on Save`",
-					"type": "boolean",
-					"default": false,
-					"scope": "resource"
-				},
-				"ahk.showButtons": {
-					"title": "Show buttons",
-					"description": "Whether to show button in the editor or not",
-					"type": "boolean",
-					"default": true,
-					"scope": "resource"
-				},
-				"ahk.executableFolderPath":{
-					"title": "Ahk directory",
-					"type":"string",
-					"default":"%programfiles%\\AutoHotKey",
-					"description": "Set the ahk executables directory fullpath"
 				}
 			}
 		}],
@@ -111,17 +111,17 @@
 				{
 					"when": "resourceLangId == ahk && config.ahk.showButtons && resourceScheme == file",
 					"command": "ahk.compile",
-					"group": "navigation"
+					"group": "navigation@1"
 				},
 				{
 					"when": "resourceLangId == ahk && config.ahk.showButtons && resourceScheme == file",
 					"command": "ahk.run",
-					"group": "navigation"
+					"group": "navigation@2"
 				},
 				{
 					"when": "editorLangId == ahk && config.ahk.showButtons && editorHasSelection",
 					"command": "ahk.run-buffer",
-					"group": "navigation"
+					"group": "navigation@3"
 				}
 			]
 		},
