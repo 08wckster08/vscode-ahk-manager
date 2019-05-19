@@ -1,0 +1,148 @@
+{
+	"name": "vscode-ahk-manager",
+	"displayName": "vscode-ahk-manager",
+	"description": "Helpful tools for working with AHK",
+	"publisher": "Denis-net",
+	"icon": "media/icon.png",
+	"version": "0.0.1",
+	"repository": {
+		"url": "https://github.com/Denis-net/vscode-ahk-manager",
+		"type": "git"
+	},
+	"engines": {
+		"vscode": "^1.34.0"
+	},
+	"categories": [
+		"Other",
+		"Snippets"
+	],
+	"keywords": [
+		"ahk",
+		"AHK",
+		"AutoHotkey",
+		"Auto Hotkey"
+	],
+	"activationEvents": [
+		"onLanguage:ahk"
+	],
+	"galleryBanner": {
+		"color": "#000000",
+		"theme": "dark"
+	},
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [{
+				"command": "ahk.compile",
+				"title": "Compile Script",
+				"category": "AHK",
+				"icon":"./media/package.svg"
+			},
+			{
+				"command": "ahk.run",
+				"title": "Run Script",
+				"category": "AHK",
+				"icon":"./media/run.svg"
+			},
+			{
+				"command": "ahk.run-buffer",
+				"title": "Run As Piped Buffer",
+				"category": "AHK",
+				"icon":"./media/zap.svg"
+			},
+			{
+				"command": "ahk.spy",
+				"title": "Window Spy",
+				"category": "AHK"
+			}
+		],
+		"snippets": [{
+			"language": "ahk",
+			"path": "./snippets.json"
+		}],
+		"configuration": [{
+			"title": "AutoHotkey Manager configuration",
+			"type": "object",
+			"properties": {
+				"ahk.initializeHeader": {
+					"title": "initialize with header",
+					"type": "boolean",
+					"default": true,
+					"description": "Specify whether automatically put an header to newely created .ahk files",
+					"scope": "resource"
+				},
+				"ahk.headerSnippet":{
+					"title": "header snippet override",
+					"type":"string",
+					"default":"#AHK-PerformanceHeader",
+					"description": "Override the header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
+					"scope": "resource"
+				},
+				"ahk.runOnSave": {
+					"title": "Run on Save",
+					"description": "Activate Run on Save (`Ctrl`+`S`)",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
+				},
+				"ahk.buildOnSave": {
+					"title": "Build on Save",
+					"description": "Activate Build on Save (`Ctrl`+`S`)... if `Run on Save`",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
+				},
+				"ahk.showButtons": {
+					"title": "Show buttons",
+					"description": "Whether to show button in the editor or not",
+					"type": "boolean",
+					"default": true,
+					"scope": "resource"
+				},
+				"ahk.executableFolderPath":{
+					"title": "Ahk directory",
+					"type":"string",
+					"default":"%programfiles%\\AutoHotKey",
+					"description": "Set the ahk executables directory fullpath"
+				}
+			}
+		}],
+		"menus": {
+			"editor/title": [
+				{
+					"when": "resourceLangId == ahk && config.ahk.showButtons && resourceScheme == file",
+					"command": "ahk.compile",
+					"group": "navigation"
+				},
+				{
+					"when": "resourceLangId == ahk && config.ahk.showButtons && resourceScheme == file",
+					"command": "ahk.run",
+					"group": "navigation"
+				},
+				{
+					"when": "editorLangId == ahk && config.ahk.showButtons && editorHasSelection",
+					"command": "ahk.run-buffer",
+					"group": "navigation"
+				}
+			]
+		},
+		"keybindings": [{
+			"command": "ahk.compile",
+			"key": "ctrl+alt+b",
+			"when": "resourceLangId == ahk"
+		}]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"typescript": "^3.3.1",
+		"vscode": "^1.1.28",
+		"tslint": "^5.12.1",
+		"@types/node": "^10.12.21",
+		"@types/mocha": "^2.2.42"
+	}
+}
