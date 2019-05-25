@@ -140,9 +140,14 @@
 					"group": "navigation@2"
 				},
 				{
+					"when": "editorLangId == ahk && config.ahk.displayButtons",
+					"command": "ahk.kill",
+					"group": "navigation@3"
+				},
+				{
 					"when": "editorLangId == ahk && config.ahk.displayButtons && editorHasSelection",
 					"command": "ahk.run-buffer",
-					"group": "navigation@3"
+					"group": "navigation@4"
 				}
 			]
 		},

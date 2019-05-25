@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let winSpyPath: string | undefined = undefined;
 	let compile_on_save: boolean = false;
 	let run_on_save: boolean = false;
-	// let last_launched_pid: number = -1;
+
 	let is_overridden = false;
 	if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk")
 		parseConfiguration(vscode.window.activeTextEditor.document.uri, vscode.window.activeTextEditor.document.getText().length);
@@ -59,9 +59,10 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.workspace.onDidSaveTextDocument(e => {
 			if (e.languageId !== 'ahk' || !e.getText().length)
 				return;
-			if (compile_on_save)
+			if (compile_on_save) {
+				vscode.commands.executeCommand(COMMAND_IDS.KILL);
 				vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
-
+			}
 			if (run_on_save)
 				vscode.commands.executeCommand(COMMAND_IDS.RUN);
 		}),
@@ -90,26 +91,27 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.SPY, () => {
 			if (vscode.window.activeTextEditor && executablePath && winSpyPath)
-				launchProcess(pathify(executablePath), "/ErrorStdOut", "/r", winSpyPath);
+				launchProcess(pathify(executablePath), false, "/ErrorStdOut", "/r", winSpyPath);
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUN, () => {
 			if (vscode.window.activeTextEditor && executablePath)
-				launchProcess(pathify(executablePath), "/ErrorStdOut", "/r", pathify(vscode.window.activeTextEditor.document.uri.fsPath));
+				launchProcess(pathify(executablePath), false, "/ErrorStdOut", "/r", pathify(vscode.window.activeTextEditor.document.uri.fsPath));
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.KILL, () => {
 			try {
-				// launchProcess("taskkill", "/F", "/PID", last_launched_pid.toString());
-				runBuffered(panic.PANIC_RAW_SCRIPT.concat(""));
 				if (!vscode.window.activeTextEditor)
 					return;
+				let scriptFileName = path.basename(vscode.window.activeTextEditor.document.uri.fsPath);
 				let compiledPath = overriddenCompiledDestination;
-				if (!compiledPath) {
-					compiledPath = path.basename(vscode.window.activeTextEditor.document.uri.fsPath);
-					compiledPath = compiledPath.replace(path.extname(compiledPath), ".exe");
-				}
-				launchProcess("taskkill", "/IM", JSON.stringify(compiledPath), "/F");
+				if (!compiledPath)
+					compiledPath = scriptFileName.replace(path.extname(scriptFileName), ".exe");
+				else
+					compiledPath = path.basename(compiledPath);
+
+				runBuffered(panic.Kill_Target_Raw_Script(scriptFileName));
+				launchProcess("taskkill", true, "/IM", JSON.stringify(compiledPath), "/F"); // launchProcess("taskkill", "/F", "/PID", last_launched_pid.toString());
 			} catch (err) {
 				vscode.window.showErrorMessage('An error has occured while killing the script/executable: ' + err);
 			}
@@ -119,9 +121,9 @@ export function activate(context: vscode.ExtensionContext) {
 			try {
 				if (vscode.window.activeTextEditor && compilerPath)
 					if (overriddenCompiledDestination)
-						launchProcess(compilerPath, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath), "/out", overriddenCompiledDestination);
+						launchProcess(compilerPath, false, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath), "/out", overriddenCompiledDestination);
 					else
-						launchProcess(compilerPath, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath));
+						launchProcess(compilerPath, false, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath));
 			} catch (err) {
 				vscode.window.showErrorMessage("An error has occured while compiling the script: " + err.message);
 			}
@@ -160,19 +162,24 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	function runBuffered(buffer: string = "MsgBox, Select something first !") {
-		const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
-		let is_the_second_connection = false;
-		let server = net.createServer(function (stream) {
-			if (is_the_second_connection)
-				stream.write(buffer);
-			else
-				is_the_second_connection = true;
-			stream.end();
-		});
-		server.listen(pipe_path, function () {
-			if (executablePath)
-				launchProcess(pathify(executablePath), pipe_path);
-		});
+
+		try {
+			const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
+			let is_the_second_connection = false;
+			let server = net.createServer(function (stream) {
+				if (is_the_second_connection)
+					stream.write(buffer);
+				else
+					is_the_second_connection = true;
+				stream.end();
+			});
+			server.listen(pipe_path, function () {
+				if (executablePath)
+					launchProcess(pathify(executablePath), false, pipe_path);
+			});
+		} catch (err) {
+			vscode.window.showErrorMessage('An error has occured while interacting with AHK: ', err);
+		}
 	}
 
 	function getValidSelectedText(): string {
@@ -185,17 +192,22 @@ export function activate(context: vscode.ExtensionContext) {
 		return buffer;
 	}
 
-	function launchProcess(name: string, ...args: string[]) {
+	function launchProcess(name: string, quiet: boolean, ...args: string[]) {
 		try {
 			let command = name.concat(' ', args.join(' '));
 			process.exec(command, function callback(error: any, stdout: any, stderr: any) {
 				if (error) {
-					console.log('error: ' + error);
-					vscode.window.showErrorMessage("An error has occured while launching the executable: " + error);
+					if (quiet)
+						console.log('error: ' + error);
+					else
+						vscode.window.showErrorMessage("An error has occured while launching the executable: " + error);
 				}
 			});
 		} catch (err) {
-			vscode.window.showErrorMessage("unable to launch the executable: " + err.message);
+			if (quiet)
+				console.log(err);
+			else
+				vscode.window.showErrorMessage("unable to launch the executable: " + err.message);
 		}
 	}
 
