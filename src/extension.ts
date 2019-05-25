@@ -33,12 +33,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 	console.log('vscode-ahk-manager is ready !');
 
+	let runned_scripts: string[] = new Array();
+	let compiled_scripts: string[] = new Array();
 	let overriddenCompiledDestination: string | undefined;
 	let executablePath: string | undefined = undefined;
 	let compilerPath: string | undefined = undefined;
 	let winSpyPath: string | undefined = undefined;
 	let compile_on_save: boolean = false;
 	let run_on_save: boolean = false;
+	var delayed_saving_timeout: NodeJS.Timer;
 
 	let is_overridden = false;
 	if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk")
@@ -46,25 +49,32 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(
 
+		vscode.window.onDidChangeActiveTextEditor(e => {
+			if (e && e.document.languageId === 'ahk')
+				parseConfiguration(e.document.uri, e.document.getText().length);
+		}),
+
 		vscode.workspace.onDidOpenTextDocument(e => {
-			try {
-				if (e.languageId === 'ahk')
-					parseConfiguration(e.uri, e.getText().length);
-			} catch (err) {
-				console.log(err);
-				vscode.window.showErrorMessage(err.message);
-			}
+			if (e.languageId === 'ahk')
+				parseConfiguration(e.uri, e.getText().length);
 		}),
 
 		vscode.workspace.onDidSaveTextDocument(e => {
 			if (e.languageId !== 'ahk' || !e.getText().length)
 				return;
-			if (compile_on_save) {
-				vscode.commands.executeCommand(COMMAND_IDS.KILL);
-				vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
-			}
-			if (run_on_save)
-				vscode.commands.executeCommand(COMMAND_IDS.RUN);
+
+			if (delayed_saving_timeout)
+				clearTimeout(delayed_saving_timeout);
+
+			delayed_saving_timeout = setTimeout(() => {
+				if (compile_on_save && compiled_scripts.includes(e.uri.fsPath)) {
+					vscode.commands.executeCommand(COMMAND_IDS.KILL);
+					vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
+				}
+				if (run_on_save && runned_scripts.includes(e.uri.fsPath))
+					vscode.commands.executeCommand(COMMAND_IDS.RUN);
+				// setTimeout(() => vscode.commands.executeCommand(COMMAND_IDS.RUN), compile_on_save ? 2000 : 1); // the timer delays the RUN command after the KILL above
+			}, 1000);
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SWITCH, () => {
@@ -95,8 +105,12 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUN, () => {
-			if (vscode.window.activeTextEditor && executablePath)
-				launchProcess(pathify(executablePath), false, "/ErrorStdOut", "/r", pathify(vscode.window.activeTextEditor.document.uri.fsPath));
+			if (vscode.window.activeTextEditor && executablePath) {
+				const scriptFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
+				if (!runned_scripts.includes(scriptFilePath))
+					runned_scripts.push(scriptFilePath);
+				launchProcess(pathify(executablePath), false, "/ErrorStdOut", "/r", pathify(scriptFilePath));
+			}
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.KILL, () => {
@@ -119,11 +133,15 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.COMPILE, () => {
 			try {
-				if (vscode.window.activeTextEditor && compilerPath)
+				if (vscode.window.activeTextEditor && compilerPath) {
+					const compiledFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
+					if (!compiled_scripts.includes(compiledFilePath))
+						compiled_scripts.push(compiledFilePath);
 					if (overriddenCompiledDestination)
-						launchProcess(compilerPath, false, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath), "/out", overriddenCompiledDestination);
+						launchProcess(compilerPath, false, "/in", pathify(compiledFilePath), "/out", overriddenCompiledDestination);
 					else
-						launchProcess(compilerPath, false, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath));
+						launchProcess(compilerPath, false, "/in", pathify(compiledFilePath));
+				}
 			} catch (err) {
 				vscode.window.showErrorMessage("An error has occured while compiling the script: " + err.message);
 			}
@@ -159,7 +177,6 @@ export function activate(context: vscode.ExtensionContext) {
 			runBuffered(buffer);
 		})
 	);
-
 
 	function runBuffered(buffer: string = "MsgBox, Select something first !") {
 
