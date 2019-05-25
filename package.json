@@ -148,7 +148,7 @@
 			},
 			{
 				"command": "ahk.compile-as",
-				"key": "ctrl+A Ctrk+C",
+				"key": "ctrl+A ctrl+C",
 				"when": "resourceLangId == ahk"
 			},
 			{

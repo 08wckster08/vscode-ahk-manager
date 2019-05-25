@@ -106,10 +106,11 @@ export function activate(context: vscode.ExtensionContext) {
 					};
 					if (executablePath)
 						options.defaultUri = vscode.Uri.file(path.dirname(executablePath));
-					vscode.window.showOpenDialog(options).then(fileUri => {
-						if (vscode.window.activeTextEditor && compilerPath && fileUri && fileUri[0]) {
-							overriddenCompiledDestination = pathify(fileUri[0].fsPath);
-							launchProcess(compilerPath, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath), "/out", overriddenCompiledDestination);
+					vscode.window.showSaveDialog(options).then(fileUri => {
+						if (vscode.window.activeTextEditor && compilerPath && fileUri && fileUri) {
+							overriddenCompiledDestination = pathify(fileUri.fsPath);
+							vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
+							// launchProcess(compilerPath, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath), "/out", overriddenCompiledDestination);
 						}
 					});
 				}
