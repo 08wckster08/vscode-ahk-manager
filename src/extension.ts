@@ -5,6 +5,7 @@ https://www.autohotkey.com/docs/Scripts.htm#cmd
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as process from 'child_process';
+import * as net from 'net';
 
 const COMMAND_IDS: any = {
 	COMPILE: "ahk.compile",
@@ -119,19 +120,34 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUNBUFFERED, () => {
-			let buffer = getValidSelectedText();
+			const DEFAULT_MESSAGE = "MsgBox, Select something first !";
+			const buffer = getValidSelectedText() || DEFAULT_MESSAGE;
+			const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
+			let is_the_second_connection = false;
+			let server = net.createServer(function (stream) {
+				if (is_the_second_connection) {
+					stream.write(buffer);
+					is_the_second_connection = true;
+				}
+				stream.end();
+			});
+			server.listen(pipe_path, function () {
+				if (executablePath)
+					launchProcess(pathify(executablePath), pipe_path);
+			});
 		})
 	);
 
-	function getValidSelectedText(): string | undefined {
-		if (!vscode.window.activeTextEditor || vscode.window.activeTextEditor.document.languageId !== "ahk")
-			return;
-		let buffer = vscode.window.activeTextEditor.document.getText(vscode.window.activeTextEditor.selection);
-		if (!buffer)
-			buffer = vscode.window.activeTextEditor.document.getText();
-		if (!buffer)
-			return;
+	function getValidSelectedText(): string {
+		let buffer = '';
+		if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk") {
+			buffer = vscode.window.activeTextEditor.document.getText(vscode.window.activeTextEditor.selection).toString();
+			if (!buffer)
+				buffer = vscode.window.activeTextEditor.document.getText();
+		}
+		return buffer;
 	}
+
 	function launchProcess(name: string, ...args: string[]) {
 		try {
 			let command = name.concat(' ', args.join(' '));
