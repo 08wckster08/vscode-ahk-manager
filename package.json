@@ -50,6 +50,12 @@
 				"icon": "./media/run.svg"
 			},
 			{
+				"command": "ahk.kill",
+				"title": "Kill Exe/Script",
+				"category": "AHK",
+				"icon": "./media/kill.svg"
+			},
+			{
 				"command": "ahk.run-buffer",
 				"title": "Run As Piped Buffer",
 				"category": "AHK",
@@ -159,6 +165,11 @@
 			{
 				"command": "ahk.run",
 				"key": "Ctrl+A Ctrl+R",
+				"when": "resourceLangId == ahk"
+			},
+			{
+				"command": "ahk.kill",
+				"key": "Ctrl+A Ctrl+K",
 				"when": "resourceLangId == ahk"
 			}
 		]

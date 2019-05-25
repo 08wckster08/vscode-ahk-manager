@@ -6,12 +6,14 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as process from 'child_process';
 import * as net from 'net';
+import * as panic from './panic';
 
 const COMMAND_IDS: any = {
 	COMPILE: "ahk.compile",
 	COMPILE_AS: "ahk.compile-as",
 	RUN: "ahk.run",
 	RUNBUFFERED: "ahk.run-buffer",
+	KILL: "ahk.kill",
 	SPY: "ahk.spy",
 	SWITCH: "ahk.temporary-switch-executable"
 };
@@ -26,6 +28,7 @@ const SETTINGS_KEYS: any = {
 };
 
 const DEFAULT_HEADER_SNIPPET_NAME = "Default Sublime Header";
+
 export function activate(context: vscode.ExtensionContext) {
 
 	console.log('vscode-ahk-manager is ready !');
@@ -34,7 +37,9 @@ export function activate(context: vscode.ExtensionContext) {
 	let executablePath: string | undefined = undefined;
 	let compilerPath: string | undefined = undefined;
 	let winSpyPath: string | undefined = undefined;
-
+	let compile_on_save: boolean = false;
+	let run_on_save: boolean = false;
+	// let last_launched_pid: number = -1;
 	let is_overridden = false;
 	if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk")
 		parseConfiguration(vscode.window.activeTextEditor.document.uri, vscode.window.activeTextEditor.document.getText().length);
@@ -49,6 +54,16 @@ export function activate(context: vscode.ExtensionContext) {
 				console.log(err);
 				vscode.window.showErrorMessage(err.message);
 			}
+		}),
+
+		vscode.workspace.onDidSaveTextDocument(e => {
+			if (e.languageId !== 'ahk' || !e.getText().length)
+				return;
+			if (compile_on_save)
+				vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
+
+			if (run_on_save)
+				vscode.commands.executeCommand(COMMAND_IDS.RUN);
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SWITCH, () => {
@@ -81,6 +96,23 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(COMMAND_IDS.RUN, () => {
 			if (vscode.window.activeTextEditor && executablePath)
 				launchProcess(pathify(executablePath), "/ErrorStdOut", "/r", pathify(vscode.window.activeTextEditor.document.uri.fsPath));
+		}),
+
+		vscode.commands.registerCommand(COMMAND_IDS.KILL, () => {
+			try {
+				// launchProcess("taskkill", "/F", "/PID", last_launched_pid.toString());
+				runBuffered(panic.PANIC_RAW_SCRIPT.concat(""));
+				if (!vscode.window.activeTextEditor)
+					return;
+				let compiledPath = overriddenCompiledDestination;
+				if (!compiledPath) {
+					compiledPath = path.basename(vscode.window.activeTextEditor.document.uri.fsPath);
+					compiledPath = compiledPath.replace(path.extname(compiledPath), ".exe");
+				}
+				launchProcess("taskkill", "/IM", JSON.stringify(compiledPath), "/F");
+			} catch (err) {
+				vscode.window.showErrorMessage('An error has occured while killing the script/executable: ' + err);
+			}
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.COMPILE, () => {
@@ -121,23 +153,27 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUNBUFFERED, () => {
-			const DEFAULT_MESSAGE = "MsgBox, Select something first !";
-			const buffer = getValidSelectedText() || DEFAULT_MESSAGE;
-			const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
-			let is_the_second_connection = false;
-			let server = net.createServer(function (stream) {
-				if (is_the_second_connection) {
-					stream.write(buffer);
-					is_the_second_connection = true;
-				}
-				stream.end();
-			});
-			server.listen(pipe_path, function () {
-				if (executablePath)
-					launchProcess(pathify(executablePath), pipe_path);
-			});
+			const buffer = getValidSelectedText();
+			runBuffered(buffer);
 		})
 	);
+
+
+	function runBuffered(buffer: string = "MsgBox, Select something first !") {
+		const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
+		let is_the_second_connection = false;
+		let server = net.createServer(function (stream) {
+			if (is_the_second_connection)
+				stream.write(buffer);
+			else
+				is_the_second_connection = true;
+			stream.end();
+		});
+		server.listen(pipe_path, function () {
+			if (executablePath)
+				launchProcess(pathify(executablePath), pipe_path);
+		});
+	}
 
 	function getValidSelectedText(): string {
 		let buffer = '';
@@ -175,6 +211,8 @@ export function activate(context: vscode.ExtensionContext) {
 			if (filePath && !is_overridden) {
 				setExecutablePaths(filePath);
 			}
+			compile_on_save = configuration.get(SETTINGS_KEYS.CompileOnSave, false);
+			run_on_save = configuration.get(SETTINGS_KEYS.RunOnSave, false);
 		} catch (err) {
 			console.error(err);
 			vscode.window.showErrorMessage(err.message);
@@ -364,8 +402,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 		}));
 	*/
-
-
 
 }
 
