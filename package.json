@@ -20,7 +20,8 @@
 		"ahk",
 		"AHK",
 		"AutoHotkey",
-		"Auto Hotkey"
+		"Auto Hotkey",
+		"AutoHotkey Manager"
 	],
 	"activationEvents": [
 		"onLanguage:ahk"
@@ -31,8 +32,7 @@
 	},
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [
-			{
+		"commands": [{
 				"command": "ahk.compile",
 				"title": "Compile Script",
 				"category": "AHK",
@@ -75,66 +75,84 @@
 				"command": "ahk.docs",
 				"title": "Open Docs",
 				"category": "AHK"
+			},
+
+
+
+			{
+				"command": "scripts-manager.refresh",
+				"title": "Refresh"
+			},
+			{
+				"command": "scripts-manager.suspend-on",
+				"title": "Suspend"
+			},
+			{
+				"command": "scripts-manager.suspend-off",
+				"title": "Unsuspend"
+			},
+			{
+				"command": "scripts-manager.pause-on",
+				"title": "Pause"
+			},
+			{
+				"command": "scripts-manager.pause-off",
+				"title": "Resume"
 			}
 		],
-		"snippets": [
-			{
-				"language": "ahk",
-				"path": "./snippets.json"
-			}
-		],
-		"configuration": [
-			{
-				"title": "AutoHotkey Manager configuration",
-				"type": "object",
-				"properties": {
-					"ahk.executableFullPath": {
-						"title": "Ahk executable full path",
-						"type": "string",
-						"default": "C:\\Program Files\\AutoHotKey\\AutoHotkey.exe",
-						"description": "Set the ahk executables full path"
-					},
-					"ahk.displayButtons": {
-						"title": "Show buttons",
-						"description": "Specifies whether to show buttons in the editor",
-						"type": "boolean",
-						"default": true,
-						"scope": "resource"
-					},
-					"ahk.onEmpty.initializeWithHeaderSnippet": {
-						"title": "Initialize with an header snippet",
-						"type": "boolean",
-						"default": true,
-						"description": "Specifies whether automatically call a snippet, by its name, header on empty .ahk files",
-						"scope": "resource"
-					},
-					"ahk.onEmpty.overrideHeaderSnippet": {
-						"title": "Header snippet override",
-						"type": "string",
-						"default": "Default Sublime Header",
-						"description": "Override the default header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
-						"scope": "resource"
-					},
-					"ahk.onSave.compile": {
-						"title": "Compile on Save",
-						"description": "Activate Build on Save.",
-						"type": "boolean",
-						"default": false,
-						"scope": "resource"
-					},
-					"ahk.onSave.run": {
-						"title": "Run on Save",
-						"description": "Activate Run on Save (`Ctrl`+`S`)",
-						"type": "boolean",
-						"default": false,
-						"scope": "resource"
-					}
+		"snippets": [{
+			"language": "ahk",
+			"path": "./snippets.json"
+		}],
+		"configuration": [{
+			"title": "AutoHotkey Manager configuration",
+			"type": "object",
+			"properties": {
+				"ahk.executableFullPath": {
+					"title": "Ahk executable full path",
+					"type": "string",
+					"default": "C:\\Program Files\\AutoHotKey\\AutoHotkey.exe",
+					"description": "Set the ahk executables full path"
+				},
+				"ahk.displayButtons": {
+					"title": "Show buttons",
+					"description": "Specifies whether to show buttons in the editor",
+					"type": "boolean",
+					"default": true,
+					"scope": "resource"
+				},
+				"ahk.onEmpty.initializeWithHeaderSnippet": {
+					"title": "Initialize with an header snippet",
+					"type": "boolean",
+					"default": true,
+					"description": "Specifies whether automatically call a snippet, by its name, header on empty .ahk files",
+					"scope": "resource"
+				},
+				"ahk.onEmpty.overrideHeaderSnippet": {
+					"title": "Header snippet override",
+					"type": "string",
+					"default": "Default Sublime Header",
+					"description": "Override the default header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
+					"scope": "resource"
+				},
+				"ahk.onSave.compile": {
+					"title": "Compile on Save",
+					"description": "Activate Build on Save.",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
+				},
+				"ahk.onSave.run": {
+					"title": "Run on Save",
+					"description": "Activate Run on Save (`Ctrl`+`S`)",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
 				}
 			}
-		],
+		}],
 		"menus": {
-			"editor/title": [
-				{
+			"editor/title": [{
 					"when": "resourceLangId == ahk && config.ahk.displayButtons && resourceScheme == file",
 					"command": "ahk.compile",
 					"group": "navigation@1"
@@ -154,10 +172,50 @@
 					"command": "ahk.run-buffer",
 					"group": "navigation@4"
 				}
+			],
+			"view/title": [{
+				"command": "scripts-manager.refresh",
+				"when": "view == scripts-manager",
+				"group": "navigation"
+			}],
+			"view/item/context": [
+				{
+					"command": "scripts-manager.suspend-off",
+					"when": "view == scripts-manager && viewItem =~ //.suspended/",
+					"group": "inline"
+				},
+				{
+					"command": "scripts-manager.suspend-on",
+					"when": "view == scripts-manager && viewItem =~ //.unsuspended/",
+					"group": "inline"
+				},
+				{
+					"command": "scripts-manager.pause-on",
+					"when": "view == scripts-manager && viewItem =~ //.unpaused/",
+					"group": "inline"
+				},
+				{
+					"command": "scripts-manager.pause-off",
+					"when": "view == scripts-manager && viewItem =~ //.paused/",
+					"group": "inline"
+				}
 			]
 		},
-		"keybindings": [
-			{
+		"viewsContainers": {
+			"activitybar": [{
+				"id": "ahk-manager",
+				"title": "AutoHotkey  Manager",
+				"icon": "media/icon.png"
+			}]
+		},
+		"views": {
+			"ahk-manager": [{
+				"id": "scripts-manager",
+				"name": "Scripts Manager",
+				"when": "explorer"
+			}]
+		},
+		"keybindings": [{
 				"command": "ahk.compile",
 				"key": "ctrl+shift+b",
 				"when": "resourceLangId == ahk && editorTextFocus"

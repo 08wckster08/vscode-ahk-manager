@@ -45,10 +45,12 @@ This extension contributes the following settings:
 
 ## Further Updates
 
-[] running scripts treelist 
+[] running scripts treelist
+    [] improve icons
 [] debugger
 [] if editorHasSelection search on internet for it when `Ctrl+A Ctrl+D`
 [] saved compiled destinations for scripts (maybe in settings.)
+[] improve icons
 
 ## Release Notes
 

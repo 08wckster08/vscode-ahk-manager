@@ -1,4 +1,5 @@
-﻿AHKPanic(Kill=0, Pause=0, Suspend=0, SelfToo=0) {
+﻿;https://stackoverflow.com/questions/45700383/how-do-i-stop-an-active-autohotkey-script
+AHKPanic(Kill=0, Pause=0, Suspend=0, SelfToo=0) {
 DetectHiddenWindows, On
 WinGet, IDList ,List, ahk_class AutoHotkey
 Loop %IDList%
@@ -8,7 +9,7 @@ Loop %IDList%
   IfNotInString, ATitle, %A_ScriptFullPath%
     {
     If Suspend
-      PostMessage, 0x111, 65305,,, ahk_id %ID%  ; Suspend. 
+      PostMessage, 0x111, 65305,,, ahk_id %ID%  ; Suspend.
     If Pause
       PostMessage, 0x111, 65306,,, ahk_id %ID%  ; Pause.
     If Kill
@@ -18,7 +19,7 @@ Loop %IDList%
 If SelfToo
   {
   If Suspend
-    Suspend, Toggle  ; Suspend. 
+    Suspend, Toggle  ; Suspend.
   If Pause
     Pause, Toggle, 1  ; Pause.
   If Kill
