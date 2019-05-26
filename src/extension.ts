@@ -82,7 +82,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.DOCS, () => {
 			if (docsPath)
-				launchProcess(docsPath, false);//TODO if selection search on internet
+				launchProcess(docsPath, false);//TODO if editorHasSelection search on internet
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SWITCH, () => {

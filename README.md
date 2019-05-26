@@ -45,6 +45,8 @@ This extension contributes the following settings:
 
 ## Further Updates
 
+[] running scripts treelist 
+[] debugger
 [] if editorHasSelection search on internet for it when `Ctrl+A Ctrl+D`
 [] saved compiled destinations for scripts (maybe in settings.)
 
