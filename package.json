@@ -98,6 +98,10 @@
 			{
 				"command": "scripts-manager.pause-off",
 				"title": "Resume"
+			},
+			{
+				"command": "scripts-manager.kill",
+				"title": "Kill"
 			}
 		],
 		"snippets": [{
@@ -151,6 +155,20 @@
 				}
 			}
 		}],
+		"viewsContainers": {
+			"activitybar": [{
+				"id": "ahk-manager",
+				"title": "AutoHotkey  Manager",
+				"icon": "media/icon.png"
+			}]
+		},
+		"views": {
+			"ahk-manager": [{
+				"id": "scripts-manager",
+				"name": "Scripts Manager",
+				"when": "explorer"
+			}]
+		},
 		"menus": {
 			"editor/title": [{
 					"when": "resourceLangId == ahk && config.ahk.displayButtons && resourceScheme == file",
@@ -178,8 +196,7 @@
 				"when": "view == scripts-manager",
 				"group": "navigation"
 			}],
-			"view/item/context": [
-				{
+			"view/item/context": [{
 					"command": "scripts-manager.suspend-off",
 					"when": "view == scripts-manager && viewItem =~ //.suspended/",
 					"group": "inline"
@@ -198,22 +215,13 @@
 					"command": "scripts-manager.pause-off",
 					"when": "view == scripts-manager && viewItem =~ //.paused/",
 					"group": "inline"
+				},
+				{
+					"command": "scripts-manager.kill",
+					"when": "view == scripts-manager",
+					"group": "inline"
 				}
 			]
-		},
-		"viewsContainers": {
-			"activitybar": [{
-				"id": "ahk-manager",
-				"title": "AutoHotkey  Manager",
-				"icon": "media/icon.png"
-			}]
-		},
-		"views": {
-			"ahk-manager": [{
-				"id": "scripts-manager",
-				"name": "Scripts Manager",
-				"when": "explorer"
-			}]
 		},
 		"keybindings": [{
 				"command": "ahk.compile",
