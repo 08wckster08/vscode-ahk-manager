@@ -12,6 +12,7 @@ I like to write AutoHotkey scripts, this language is amazing, but I often found 
 With this extension you can cut off the development time using easy and handy commands.
 For example if there is an image subfolder under your extension project workspace:
 
+* If you put an icon with the same name of the `script.ahk` (so `script.ico`) the icon will be used by the compiler.
 \!\[feature X\]\(images/feature-x.png\)
 
 > WARNING : This app could cause serious addictions !!! 😜
@@ -40,6 +41,7 @@ This extension contributes the following settings:
 
 * Calling out known issues can help limit users opening duplicate issues against your extension.
 * Icons aren't great (you could hide buttons if you don't like them, you'll still able to invoke commands through the command palette)
+* I will forget the compiled destination among vscode instances
 
 ## Release Notes
 

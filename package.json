@@ -154,28 +154,28 @@
 		"keybindings": [
 			{
 				"command": "ahk.compile",
-				"key": "Ctrl+Shift+B",
-				"when": "resourceLangId == ahk"
+				"key": "ctrl+shift+b",
+				"when": "resourceLangId == ahk && editorTextFocus"
 			},
 			{
 				"command": "ahk.compile-as",
-				"key": "ctrl+A ctrl+C",
-				"when": "resourceLangId == ahk"
+				"key": "ctrl+a ctrl+c",
+				"when": "resourceLangId == ahk && editorTextFocus"
 			},
 			{
 				"command": "ahk.spy",
-				"key": "ctrl+A ctrl+S",
-				"when": "resourceLangId == ahk"
+				"key": "ctrl+a ctrl+s",
+				"when": "resourceLangId == ahk && editorTextFocus"
 			},
 			{
 				"command": "ahk.run",
-				"key": "Ctrl+A Ctrl+R",
-				"when": "resourceLangId == ahk"
+				"key": "ctrl+a ctrl+r",
+				"when": "resourceLangId == ahk && editorTextFocus"
 			},
 			{
 				"command": "ahk.kill",
-				"key": "Ctrl+A Ctrl+K",
-				"when": "resourceLangId == ahk"
+				"key": "ctrl+a ctrl+k",
+				"when": "resourceLangId == ahk && editorTextFocus"
 			}
 		]
 	},

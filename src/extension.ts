@@ -4,6 +4,7 @@ https://www.autohotkey.com/docs/Scripts.htm#cmd
 */
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as fs from 'fs';
 import * as process from 'child_process';
 import * as net from 'net';
 import * as panic from './panic';
@@ -100,8 +101,9 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SPY, () => {
-			if (vscode.window.activeTextEditor && executablePath && winSpyPath)
+			if (vscode.window.activeTextEditor && executablePath && winSpyPath) {
 				launchProcess(pathify(executablePath), false, "/ErrorStdOut", "/r", winSpyPath);
+			}
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUN, () => {
@@ -134,13 +136,16 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(COMMAND_IDS.COMPILE, () => {
 			try {
 				if (vscode.window.activeTextEditor && compilerPath) {
-					const compiledFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
-					if (!compiled_scripts.includes(compiledFilePath))
-						compiled_scripts.push(compiledFilePath);
+					const scriptFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
+					if (!compiled_scripts.includes(scriptFilePath))
+						compiled_scripts.push(scriptFilePath);
+
+					let iconPath = scriptFilePath.replace(".ahk", ".ico");
+					iconPath = fs.existsSync(iconPath) ? "/icon " + pathify(iconPath) : "";
 					if (overriddenCompiledDestination)
-						launchProcess(compilerPath, false, "/in", pathify(compiledFilePath), "/out", overriddenCompiledDestination);
+						launchProcess(compilerPath, false, "/in", pathify(scriptFilePath), "/out", overriddenCompiledDestination, iconPath);
 					else
-						launchProcess(compilerPath, false, "/in", pathify(compiledFilePath));
+						launchProcess(compilerPath, false, "/in", pathify(scriptFilePath), iconPath);
 				}
 			} catch (err) {
 				vscode.window.showErrorMessage("An error has occured while compiling the script: " + err.message);
