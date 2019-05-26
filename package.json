@@ -70,6 +70,11 @@
 				"command": "ahk.temporary-switch-executable",
 				"title": "Switch Executable (Temporary)",
 				"category": "AHK"
+			},
+			{
+				"command": "ahk.docs",
+				"title": "Open Docs",
+				"category": "AHK"
 			}
 		],
 		"snippets": [
@@ -175,6 +180,11 @@
 			{
 				"command": "ahk.kill",
 				"key": "ctrl+a ctrl+k",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.docs",
+				"key": "ctrl+a ctrl+d",
 				"when": "resourceLangId == ahk && editorTextFocus"
 			}
 		]

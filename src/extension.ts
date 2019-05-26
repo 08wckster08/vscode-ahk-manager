@@ -16,6 +16,7 @@ const COMMAND_IDS: any = {
 	RUNBUFFERED: "ahk.run-buffer",
 	KILL: "ahk.kill",
 	SPY: "ahk.spy",
+	DOCS: "ahk.docs",
 	SWITCH: "ahk.temporary-switch-executable"
 };
 
@@ -39,6 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let overriddenCompiledDestination: string | undefined;
 	let executablePath: string | undefined = undefined;
 	let compilerPath: string | undefined = undefined;
+	let docsPath: string | undefined = undefined;
 	let winSpyPath: string | undefined = undefined;
 	let compile_on_save: boolean = false;
 	let run_on_save: boolean = false;
@@ -76,6 +78,11 @@ export function activate(context: vscode.ExtensionContext) {
 					vscode.commands.executeCommand(COMMAND_IDS.RUN);
 				// setTimeout(() => vscode.commands.executeCommand(COMMAND_IDS.RUN), compile_on_save ? 2000 : 1); // the timer delays the RUN command after the KILL above
 			}, 1000);
+		}),
+
+		vscode.commands.registerCommand(COMMAND_IDS.DOCS, () => {
+			if (docsPath)
+				launchProcess(docsPath, false);//TODO if selection search on internet
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SWITCH, () => {
@@ -256,6 +263,7 @@ export function activate(context: vscode.ExtensionContext) {
 	function setExecutablePaths(filePath: string) {
 		executablePath = filePath;
 		winSpyPath = pathify(path.join(path.dirname(filePath), 'WindowSpy.ahk'));
+		docsPath = pathify(path.join(path.dirname(filePath), 'AutoHotkey.chm'));
 		compilerPath = pathify(path.join(path.dirname(filePath), 'Compiler', 'Ahk2Exe.exe'));
 	}
 

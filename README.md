@@ -41,7 +41,12 @@ This extension contributes the following settings:
 
 * Calling out known issues can help limit users opening duplicate issues against your extension.
 * Icons aren't great (you could hide buttons if you don't like them, you'll still able to invoke commands through the command palette)
-* I will forget the compiled destination among vscode instances
+* I will forget the compiled destinations among vscode instances
+
+## Further Updates
+
+[] if editorHasSelection search on internet for it when `Ctrl+A Ctrl+D`
+[] saved compiled destinations for scripts (maybe in settings.)
 
 ## Release Notes
 
