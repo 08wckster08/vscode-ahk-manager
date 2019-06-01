@@ -21,11 +21,11 @@ Loop %AHK% {
 ; }
 IsPaused( PID ) {
     dhw := A_DetectHiddenWindows
-    [color=#D05000]DetectHiddenWindows, On[/color]  ; This line can be important!
+    DetectHiddenWindows, On  ; This line can be important!
     hWnd := WinExist("ahk_class AutoHotkey ahk_pid " PID )
-    [color=darkred]SendMessage, 0x211[/color]  ; WM_ENTERMENULOOP
-    [color=darkred]SendMessage, 0x212[/color]  ; WM_EXITMENULOOP
-    [color=#D05000]DetectHiddenWindows, %dhw%[/color]
+    SendMessage, 0x211  ; WM_ENTERMENULOOP
+    SendMessage, 0x212  ; WM_EXITMENULOOP
+    DetectHiddenWindows, %dhw%
     hMenu := DllCall("GetMenu", "uint", hWnd)
     hMenu := DllCall("GetSubMenu", "uint", hMenu, "int", 0)
     return (DllCall("GetMenuState", "uint", hMenu, "uint", 4, "uint", 0x400) & 0x8) [color=#D05000]!= 0[/color]

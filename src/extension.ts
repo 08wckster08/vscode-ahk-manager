@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as process from 'child_process';
 import * as net from 'net';
 import * as panic from './panic';
+import { ScriptManagerProvider, Script } from './script-manager-provider';
 
 const COMMAND_IDS: any = {
 	COMPILE: "ahk.compile",
@@ -17,7 +18,16 @@ const COMMAND_IDS: any = {
 	KILL: "ahk.kill",
 	SPY: "ahk.spy",
 	DOCS: "ahk.docs",
-	SWITCH: "ahk.temporary-switch-executable"
+	SWITCH: "ahk.temporary-switch-executable",
+
+	TREE_COMMANDS: {
+		REFRESH: "ahk.scripts-manager.refresh",
+		SUSPEND_ON: "ahk.scripts-manager.suspend-on",
+		SUSPEND_OFF: "ahk.scripts-manager.suspend-off",
+		PAUSE_ON: "ahk.scripts-manager.pause-on",
+		PAUSE_OFF: "ahk.scripts-manager.pause-off",
+		KILL: "ahk.scripts-manager.kill"
+	}
 };
 
 const SETTINGS_KEYS: any = {
@@ -48,13 +58,22 @@ export function activate(context: vscode.ExtensionContext) {
 	let on_search_query_template: string | undefined;
 	let on_search_target_browser: string | undefined;
 
+	let treeDataProvider: ScriptManagerProvider;
+	let scriptViewer: vscode.TreeView<Script>;
+
 	let compile_on_save: boolean = false;
 	let run_on_save: boolean = false;
 	var delayed_saving_timeout: NodeJS.Timer;
 
 	let is_overridden = false;
+
 	if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk")
 		parseConfiguration(vscode.window.activeTextEditor.document.uri, vscode.window.activeTextEditor.document.getText().length);
+
+	treeDataProvider = new ScriptManagerProvider(pathify(executablePath || ""));
+	context.subscriptions.push(vscode.window.registerTreeDataProvider('ahk.scripts-manager', treeDataProvider));
+	scriptViewer = vscode.window.createTreeView('ahk.scripts-manager', { treeDataProvider });
+
 
 	context.subscriptions.push(
 
@@ -95,7 +114,7 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 			else if (docsPath)
-				launchProcess(docsPath, false);//TODO if editorHasSelection search on internet
+				launchProcess(docsPath, false);
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SWITCH, () => {
@@ -200,6 +219,25 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(COMMAND_IDS.RUNBUFFERED, () => {
 			const buffer = getValidSelectedText();
 			runBuffered(buffer);
+		}),
+
+		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.REFRESH, (element: Script) => {
+			treeDataProvider.refresh();
+		}),
+		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.SUSPEND_ON, (element: Script) => {
+			element.suspend();
+		}),
+		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.SUSPEND_OFF, (element: Script) => {
+			element.unSuspend();
+		}),
+		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.PAUSE_ON, (element: Script) => {
+			element.pause();
+		}),
+		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.PAUSE_OFF, (element: Script) => {
+			element.resume();
+		}),
+		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.KILL, (element: Script) => {
+			element.kill();
 		})
 	);
 
@@ -289,6 +327,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	function setExecutablePaths(filePath: string) {
 		executablePath = filePath;
+		if (treeDataProvider)
+			treeDataProvider.executablePath = pathify(filePath);
 		winSpyPath = pathify(path.join(path.dirname(filePath), 'WindowSpy.ahk'));
 		docsPath = pathify(path.join(path.dirname(filePath), 'AutoHotkey.chm'));
 		compilerPath = pathify(path.join(path.dirname(filePath), 'Compiler', 'Ahk2Exe.exe'));
