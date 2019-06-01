@@ -28,6 +28,14 @@
             "}",
             ""
         ],
-        "description":"Add an icon to your script"
+        "description": "Add an icon to your script"
+    },
+    "Breakpoint": {
+        "prefix": "#AHK-Breakpoint",
+        "body": [
+            "ListVars",
+            "Pause"
+        ],
+        "description": "It stops the execution and allow you to inspect the Script's variables' states"
     }
 }
