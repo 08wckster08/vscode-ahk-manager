@@ -32,13 +32,11 @@ For example:
 
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
 * `ahk.onSearch.targetBrowser`: choose the right browser for performing your searches.
   * see [open](https://github.com/sindresorhus/open) for the right syntax (this is the **option** object)
 * `ahk.onSearch.queryTemplate`: *with better question you'll get better answers*.
 
-> Note: maybe you'll have to set the `mainDirectoryPath` in order to make this extension working with AHK.
+> Note: maybe you'll have to set the `executableFullPath` in order to make this extension working with AHK.
 
 ## Known Issues
 
