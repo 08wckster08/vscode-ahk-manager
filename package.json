@@ -252,6 +252,11 @@
 				"command": "ahk.docs",
 				"key": "ctrl+a ctrl+d",
 				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "editor.action.selectAll",
+				"key": "ctrl+a ctrl+a",
+				"when": "resourceLangId == ahk && editorTextFocus"
 			}
 		]
 	},
