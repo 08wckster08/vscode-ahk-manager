@@ -9,11 +9,11 @@ I like to write AutoHotkey scripts, this language is amazing, but I often found 
 
 ## Features
 
-With this extension you can cut off the development time using easy and handy commands.
-For example if there is an image subfolder under your extension project workspace:
+With this extension you can cut off the development time using handy commands.
 
 * If you put an icon with the same name of the `script.ahk` (so `script.ico`) the icon will be used by the compiler.
-\!\[feature X\]\(images/feature-x.png\)
+* Using `Ctrl`+`A` `Ctrl`+`D` you can consult the docs
+  * if you have a selection you could search about it on google.
 
 > WARNING : This app could cause serious addictions !!! 😜
 
@@ -34,6 +34,9 @@ This extension contributes the following settings:
 
 * `myExtension.enable`: enable/disable this extension
 * `myExtension.thing`: set to `blah` to do something
+* `ahk.onSearch.targetBrowser`: choose the right browser for performing your searches.
+  * see [open](https://github.com/sindresorhus/open) for the right syntax (this is the **option** object)
+* `ahk.onSearch.queryTemplate`: *with better question you'll get better answers*.
 
 > Note: maybe you'll have to set the `mainDirectoryPath` in order to make this extension working with AHK.
 
@@ -48,7 +51,7 @@ This extension contributes the following settings:
 [] running scripts treelist
     [] improve icons
 [] debugger
-[] if editorHasSelection search on internet for it when `Ctrl+A Ctrl+D`
+[X] if editorHasSelection search on internet for it when `Ctrl+A Ctrl+D`
 [] saved compiled destinations for scripts (maybe in settings.)
 [] improve icons
 

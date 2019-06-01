@@ -26,7 +26,9 @@ const SETTINGS_KEYS: any = {
 	InitializeWithHeaderSnippet: "ahk.onEmpty.initializeWithHeaderSnippet",
 	OverrideHeaderSnippet: "ahk.onEmpty.overrideHeaderSnippet",
 	CompileOnSave: "ahk.onSave.compile",
-	RunOnSave: "ahk.onSave.run"
+	RunOnSave: "ahk.onSave.run",
+	OnSearchQueryTemplate: "ahk.onSearch.queryTemplate",
+	OnSearchTargetBrowser: "ahk.onSearch.targetBrowser"
 };
 
 const DEFAULT_HEADER_SNIPPET_NAME = "Default Sublime Header";
@@ -42,6 +44,10 @@ export function activate(context: vscode.ExtensionContext) {
 	let compilerPath: string | undefined = undefined;
 	let docsPath: string | undefined = undefined;
 	let winSpyPath: string | undefined = undefined;
+
+	let on_search_query_template: string | undefined;
+	let on_search_target_browser: string | undefined;
+
 	let compile_on_save: boolean = false;
 	let run_on_save: boolean = false;
 	var delayed_saving_timeout: NodeJS.Timer;
@@ -81,7 +87,14 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.DOCS, () => {
-			if (docsPath)
+			if (vscode.window.activeTextEditor && !vscode.window.activeTextEditor.selection.isEmpty) {
+				const selection = vscode.window.activeTextEditor.document.getText(vscode.window.activeTextEditor.selection);
+				if (selection) {
+					const encodedSelection = encodeURI(selection);
+					openLink(encodedSelection);
+				}
+			}
+			else if (docsPath)
 				launchProcess(docsPath, false);//TODO if editorHasSelection search on internet
 		}),
 
@@ -190,6 +203,17 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	function openLink(encodedSelection: string) {
+		try {
+			if (!on_search_query_template)
+				return;
+			const template = on_search_query_template.replace('${encodedSelection}', encodedSelection);
+			require('open')(template, on_search_target_browser);
+		} catch (err) {
+			vscode.window.showErrorMessage(`An Error has occured while searching for info about "${encodedSelection}"`, err);
+		}
+	}
+
 	function runBuffered(buffer: string = "MsgBox, Select something first !") {
 
 		try {
@@ -254,6 +278,9 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 			compile_on_save = configuration.get(SETTINGS_KEYS.CompileOnSave, false);
 			run_on_save = configuration.get(SETTINGS_KEYS.RunOnSave, false);
+
+			on_search_target_browser = configuration.get(SETTINGS_KEYS.OnSearchTargetBrowser);
+			on_search_query_template = configuration.get(SETTINGS_KEYS.OnSearchQueryTemplate);
 		} catch (err) {
 			console.error(err);
 			vscode.window.showErrorMessage(err.message);

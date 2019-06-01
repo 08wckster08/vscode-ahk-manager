@@ -32,7 +32,8 @@
 	},
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [{
+		"commands": [
+			{
 				"command": "ahk.compile",
 				"title": "Compile Script",
 				"category": "AHK",
@@ -76,9 +77,6 @@
 				"title": "Open Docs",
 				"category": "AHK"
 			},
-
-
-
 			{
 				"command": "scripts-manager.refresh",
 				"title": "Refresh"
@@ -104,73 +102,96 @@
 				"title": "Kill"
 			}
 		],
-		"snippets": [{
-			"language": "ahk",
-			"path": "./snippets.json"
-		}],
-		"configuration": [{
-			"title": "AutoHotkey Manager configuration",
-			"type": "object",
-			"properties": {
-				"ahk.executableFullPath": {
-					"title": "Ahk executable full path",
-					"type": "string",
-					"default": "C:\\Program Files\\AutoHotKey\\AutoHotkey.exe",
-					"description": "Set the ahk executables full path"
-				},
-				"ahk.displayButtons": {
-					"title": "Show buttons",
-					"description": "Specifies whether to show buttons in the editor",
-					"type": "boolean",
-					"default": true,
-					"scope": "resource"
-				},
-				"ahk.onEmpty.initializeWithHeaderSnippet": {
-					"title": "Initialize with an header snippet",
-					"type": "boolean",
-					"default": true,
-					"description": "Specifies whether automatically call a snippet, by its name, header on empty .ahk files",
-					"scope": "resource"
-				},
-				"ahk.onEmpty.overrideHeaderSnippet": {
-					"title": "Header snippet override",
-					"type": "string",
-					"default": "Default Sublime Header",
-					"description": "Override the default header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
-					"scope": "resource"
-				},
-				"ahk.onSave.compile": {
-					"title": "Compile on Save",
-					"description": "Activate Build on Save.",
-					"type": "boolean",
-					"default": false,
-					"scope": "resource"
-				},
-				"ahk.onSave.run": {
-					"title": "Run on Save",
-					"description": "Activate Run on Save (`Ctrl`+`S`)",
-					"type": "boolean",
-					"default": false,
-					"scope": "resource"
+		"snippets": [
+			{
+				"language": "ahk",
+				"path": "./snippets.json"
+			}
+		],
+		"configuration": [
+			{
+				"title": "AutoHotkey Manager configuration",
+				"type": "object",
+				"properties": {
+					"ahk.executableFullPath": {
+						"title": "Ahk executable full path",
+						"type": "string",
+						"default": "C:\\Program Files\\AutoHotKey\\AutoHotkey.exe",
+						"description": "Set the ahk executables full path"
+					},
+					"ahk.displayButtons": {
+						"title": "Show buttons",
+						"description": "Specifies whether to show buttons in the editor",
+						"type": "boolean",
+						"default": true,
+						"scope": "resource"
+					},
+					"ahk.onEmpty.initializeWithHeaderSnippet": {
+						"title": "Initialize with an header snippet",
+						"type": "boolean",
+						"default": true,
+						"description": "Specifies whether automatically call a snippet, by its name, header on empty .ahk files",
+						"scope": "resource"
+					},
+					"ahk.onEmpty.overrideHeaderSnippet": {
+						"title": "Header snippet override",
+						"type": "string",
+						"default": "Default Sublime Header",
+						"description": "Override the default header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
+						"scope": "resource"
+					},
+					"ahk.onSave.compile": {
+						"title": "Compile on Save",
+						"description": "Activate Build on Save.",
+						"type": "boolean",
+						"default": false,
+						"scope": "resource"
+					},
+					"ahk.onSave.run": {
+						"title": "Run on Save",
+						"description": "Activate Run on Save (`Ctrl`+`S`)",
+						"type": "boolean",
+						"default": false,
+						"scope": "resource"
+					},
+					"ahk.onSearch.queryTemplate": {
+						"title": "Search Query Template",
+						"type": "string",
+						"default": "www.google.com/search?q=site%3Aautohotkey.com+ahk+${encodedSelection}&oq=site%3Aautohotkey.com+ahk+${encodedSelection}",
+						"description": "Specify the search query template used in `ahk.docs` command with selections",
+						"scope": "resource"
+					},
+					"ahk.onSearch.targetBrowser": {
+						"title": "Search Target Browser",
+						"type": "object",
+						"default": "{app: 'firefox'}",
+						"description": "Specify the browser used in `ahk.docs` command with selections. (see https://github.com/sindresorhus/open)",
+						"scope": "resource"
+					}
 				}
 			}
-		}],
+		],
 		"viewsContainers": {
-			"activitybar": [{
-				"id": "ahk-manager",
-				"title": "AutoHotkey  Manager",
-				"icon": "media/icon.png"
-			}]
+			"activitybar": [
+				{
+					"id": "ahk-manager",
+					"title": "AutoHotkey  Manager",
+					"icon": "media/icon.png"
+				}
+			]
 		},
 		"views": {
-			"ahk-manager": [{
-				"id": "scripts-manager",
-				"name": "Scripts Manager",
-				"when": "explorer"
-			}]
+			"ahk-manager": [
+				{
+					"id": "scripts-manager",
+					"name": "Scripts Manager",
+					"when": "explorer"
+				}
+			]
 		},
 		"menus": {
-			"editor/title": [{
+			"editor/title": [
+				{
 					"when": "resourceLangId == ahk && config.ahk.displayButtons && resourceScheme == file",
 					"command": "ahk.compile",
 					"group": "navigation@1"
@@ -191,12 +212,15 @@
 					"group": "navigation@4"
 				}
 			],
-			"view/title": [{
-				"command": "scripts-manager.refresh",
-				"when": "view == scripts-manager",
-				"group": "navigation"
-			}],
-			"view/item/context": [{
+			"view/title": [
+				{
+					"command": "scripts-manager.refresh",
+					"when": "view == scripts-manager",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
 					"command": "scripts-manager.suspend-off",
 					"when": "view == scripts-manager && viewItem =~ //.suspended/",
 					"group": "inline"
@@ -223,7 +247,8 @@
 				}
 			]
 		},
-		"keybindings": [{
+		"keybindings": [
+			{
 				"command": "ahk.compile",
 				"key": "ctrl+shift+b",
 				"when": "resourceLangId == ahk && editorTextFocus"
@@ -274,5 +299,7 @@
 		"@types/node": "^10.12.21",
 		"@types/mocha": "^2.2.42"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"open": "^6.3.0"
+	}
 }
