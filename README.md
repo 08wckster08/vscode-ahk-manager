@@ -43,6 +43,7 @@ This extension contributes the following settings:
 * Calling out known issues can help limit users opening duplicate issues against your extension.
 * Icons aren't great (you could hide buttons if you don't like them, you'll still able to invoke commands through the command palette)
 * I will forget the compiled destinations among vscode instances
+* Side effect of the Shortcut : the select all don't get triggered, so I added a workaround : `Ctrl+A Ctrl+A` for selecting all text in .ahk files ... could still be awkward... you could think about better shorcut combinations and adjust them manually for getting the `Ctrl+A` working normally again.
 
 ## Further Updates
 

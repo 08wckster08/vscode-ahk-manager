@@ -48,16 +48,26 @@ export const Kill_Target_Raw_Script = (target: string) =>
 
 export const List_All_ScriptStates = (pipe: string) => `DetectHiddenWindows, On
 
-IsPaused( PID ) {
+IsInState( PID, State ) {
   dhw := A_DetectHiddenWindows
   DetectHiddenWindows, On  ; This line can be important!
   hWnd := WinExist("ahk_class AutoHotkey ahk_pid " PID )
   SendMessage, 0x211  ; WM_ENTERMENULOOP
   SendMessage, 0x212  ; WM_EXITMENULOOP
   DetectHiddenWindows, %dhw%
-  hMenu := DllCall("GetMenu", "uint", hWnd)
-  hMenu := DllCall("GetSubMenu", "uint", hMenu, "int", 0)
-  return (DllCall("GetMenuState", "uint", hMenu, "uint", 4, "uint", 0x400) & 0x8) != 0
+  mainMenu := DllCall("GetMenu", "uint", hWnd)
+  fileMenu := DllCall("GetSubMenu", "uint", mainMenu, "int", 0)
+
+  ;return (DllCall("GetMenuState", "uint", hMenu, "uint", 4, "uint", 0x400) & 0x8) != 0
+
+  state := DllCall("GetMenuState", "ptr", fileMenu, "uint", State, "uint", 0)
+  ; Get the checkmark flag.
+  isInState := state >> 3 & 1
+  ; Clean up.
+  DllCall("CloseHandle", "ptr", fileMenu)
+  DllCall("CloseHandle", "ptr", mainMenu)
+
+  return isInState
 }
 
 WinGet, AHK, List, ahk_class AutoHotkey
@@ -69,8 +79,9 @@ Loop %AHK% {
   If ( PID = DllCall("GetCurrentProcessId") ) ; skip pause test for self
        Continue
 
-  paused := IsPaused( PID ) == 0?"false":"true"
-  line = {"title":"%Title%", "Paused": %paused%, "pid":"%PID%"}
+  paused := IsInState( PID, 65403 ) == 0?"false":"true"
+  suspended := IsInState( PID, 65404 ) == 0?"false":"true"
+  line = {"title":"%Title%", "Paused": %paused%, "Suspended": %suspended%, "pid":"%PID%"}
   Result .= line . ","
 }
 Result := SubStr(Result,1,StrLen(Result)-1)
