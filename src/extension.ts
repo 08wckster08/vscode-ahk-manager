@@ -5,43 +5,12 @@ https://www.autohotkey.com/docs/Scripts.htm#cmd
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as process from 'child_process';
+import * as child_process from 'child_process';
 import * as net from 'net';
 import * as panic from './panic';
+import { COMMAND_IDS, DEFAULT_HEADER_SNIPPET_NAME, SETTINGS_KEYS } from './enums';
 import { ScriptManagerProvider, Script } from './script-manager-provider';
 
-const COMMAND_IDS: any = {
-	COMPILE: "ahk.compile",
-	COMPILE_AS: "ahk.compile-as",
-	RUN: "ahk.run",
-	RUNBUFFERED: "ahk.run-buffer",
-	KILL: "ahk.kill",
-	SPY: "ahk.spy",
-	DOCS: "ahk.docs",
-	SWITCH: "ahk.temporary-switch-executable",
-
-	TREE_COMMANDS: {
-		REFRESH: "ahk.scripts-manager.refresh",
-		SUSPEND_ON: "ahk.scripts-manager.suspend-on",
-		SUSPEND_OFF: "ahk.scripts-manager.suspend-off",
-		PAUSE_ON: "ahk.scripts-manager.pause-on",
-		PAUSE_OFF: "ahk.scripts-manager.pause-off",
-		KILL: "ahk.scripts-manager.kill"
-	}
-};
-
-const SETTINGS_KEYS: any = {
-	ExecutablePath: "ahk.executableFullPath",
-	DisplayButtons: "ahk.displayButtons",
-	InitializeWithHeaderSnippet: "ahk.onEmpty.initializeWithHeaderSnippet",
-	OverrideHeaderSnippet: "ahk.onEmpty.overrideHeaderSnippet",
-	CompileOnSave: "ahk.onSave.compile",
-	RunOnSave: "ahk.onSave.run",
-	OnSearchQueryTemplate: "ahk.onSearch.queryTemplate",
-	OnSearchTargetBrowser: "ahk.onSearch.targetBrowser"
-};
-
-const DEFAULT_HEADER_SNIPPET_NAME = "Default Sublime Header";
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -238,6 +207,27 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.KILL, (element: Script) => {
 			element.kill();
+		}),
+		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.SHOW_IN_EXPLORER, (uri: vscode.Uri) => {
+			try {
+				if (executablePath)
+					treeDataProvider.ExecuteAHKCode(pathify(executablePath), (pipe) => panic.GetKeyState(pipe, 'Ctrl'), (error) => { throw error; }, true, (result) => {
+						let ctrlIsDown = parseInt(new Buffer(result.buffer).toString('utf8'));
+						if (ctrlIsDown) {
+							launchProcess(pathify(process.execPath), false, pathify(uri.fsPath));
+						}
+						else
+							vscode.commands.executeCommand('revealFileInOS', uri);
+					});
+				else
+					vscode.commands.executeCommand('revealFileInOS', uri);
+			} catch (err1) {
+				try {
+					vscode.commands.executeCommand('revealFileInOS', uri);
+				} catch (err2) {
+					vscode.window.showErrorMessage('An error has occured while opening the file', err1, err2);
+				}
+			}
 		})
 	);
 
@@ -286,7 +276,7 @@ export function activate(context: vscode.ExtensionContext) {
 	function launchProcess(name: string, quiet: boolean, ...args: string[]) {
 		try {
 			let command = name.concat(' ', args.join(' '));
-			process.exec(command, function callback(error: any, stdout: any, stderr: any) {
+			child_process.exec(command, function callback(error: any, stdout: any, stderr: any) {
 				if (error) {
 					if (quiet)
 						console.log('error: ' + error);
