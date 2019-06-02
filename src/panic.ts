@@ -75,18 +75,21 @@ WinGet, AHK, List, ahk_class AutoHotkey
 Result := "["
 Loop %AHK% {
   WinGetTitle, Title, % "ahk_id " AHK%A_Index%
+  Title := StrReplace(Title,"\\","\\\\")
+  UncompiledSignature =  - AutoHotkey v%A_AhkVersion%
+  Title := StrReplace(Title,UncompiledSignature,"")
   WinGet, PID, PID,   % "ahk_id " AHK%A_Index%
   If ( PID = DllCall("GetCurrentProcessId") ) ; skip pause test for self
        Continue
 
   paused := IsInState( PID, 65403 ) == 0?"false":"true"
   suspended := IsInState( PID, 65404 ) == 0?"false":"true"
-  line = {"title":"%Title%", "Paused": %paused%, "Suspended": %suspended%, "pid":"%PID%"}
+  line = {"title":"%Title%", "paused": %paused%, "suspended": %suspended%, "pid":"%PID%"}
   Result .= line . ","
 }
 Result := SubStr(Result,1,StrLen(Result)-1)
 Result .= "]"
-MsgBox, % Result
+;MsgBox, % Result
 
 CallNamedPipe(Name,InBuffer,InBufferSize,OutBuffer,OutBufferSize,ByRef BytesRead,TimeOut=1000){
   return DllCall("CallNamedPipe","str",Name,"Ptr",InBuffer

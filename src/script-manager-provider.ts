@@ -3,7 +3,20 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as net from 'net';
 import { List_All_ScriptStates } from './panic';
-import * as http from 'http';
+
+enum ConnectionStates {
+    GetAttribute,
+    WriteCode,
+    ReadResult
+}
+
+interface RawScript {
+    title: string;
+    pid: number;
+    paused: boolean;
+    suspended: boolean;
+}
+
 /**
  * It manages all the running scripts
  */
@@ -47,33 +60,42 @@ export class ScriptManagerProvider implements vscode.TreeDataProvider<Script>{
         if (!this.executablePath)
             return Promise.reject();
         const promise = new Promise<Script[]>((resolve, reject) => {
-            let list: Script[] = new Array();
             const executablePath = this.executablePath;
             try {
-                const dest_pipe_path = "\\\\.\\pipe\\AHK_Rx" + Date.now();
                 const pipe_path = "\\\\.\\pipe\\AHK_Tx" + Date.now();
-                let is_the_second_connection = false;
+                let connection_state: ConnectionStates = ConnectionStates.GetAttribute;
+                const server = net.createServer(function (stream) {
+                    switch (connection_state) {
+                        case ConnectionStates.GetAttribute:
+                            stream.destroy();
+                            break;
+                        case ConnectionStates.WriteCode:
+                            stream.write(List_All_ScriptStates(pipe_path));
+                            stream.end();
+                            break;
+                        case ConnectionStates.ReadResult:
+                            stream.on('data', (result) => {
+                                try {
+                                    let list: Script[] = new Array();
+                                    let serialized_data = new Buffer(result.buffer).toString('utf8');
 
-                let server = net.createServer((stream) => {
-                    stream.on('data', function (blist) {
-                        let serialized_data = new Buffer(blist.buffer).toString('utf8');
-                        stream.end();
-                        launcher.close();
-                        list.push(new Script('pippo', executablePath, vscode.Uri.parse('path1'), '.unsuspended.unpaused'));
-                        list.push(new Script('pluto', executablePath, vscode.Uri.parse('path2'), '.unsuspended.paused'));
-                        resolve(list);
-                    });
-                });
-                server.listen(dest_pipe_path);
+                                    stream.end();
+                                    server.close();
 
-                let launcher = net.createServer(function (stream) {
-                    if (is_the_second_connection)
-                        stream.write(List_All_ScriptStates(dest_pipe_path));
-                    else
-                        is_the_second_connection = true;
-                    stream.end();
+                                    let script_list: RawScript[] = JSON.parse(serialized_data);
+                                    script_list.forEach(element => {
+                                        list.push(new Script(element.pid.toString(),path.basename(element.title), executablePath, vscode.Uri.file(element.title), element.paused, element.suspended));
+                                    });
+                                    resolve(list);
+                                } catch (err) {
+                                    reject(err);
+                                }
+                            });
+                            break;
+                    }
+                    connection_state++;
                 });
-                launcher.listen(pipe_path, function () {
+                server.listen(pipe_path, function () {
                     launchProcess(executablePath, false, pipe_path);
                 });
 
@@ -107,12 +129,19 @@ function launchProcess(name: string, quiet: boolean, ...args: string[]) {
 
 export class Script extends vscode.TreeItem {
     constructor(
+        public readonly id: string,
         public readonly label: string,
         public executablePath: string,
         public resourceUri: vscode.Uri,
-        public contextValue: string
+        public paused: boolean,
+        public suspended: boolean,
     ) {
         super(label, vscode.TreeItemCollapsibleState.None);
+    }
+
+
+    public get contextValue(): string {
+        return `.${this.suspend ? 'suspended' : 'unsuspended'}.${this.paused ? 'paused' : 'unpaused'}`;
     }
 
     // contextValue = ".unsuspended.unpaused";
