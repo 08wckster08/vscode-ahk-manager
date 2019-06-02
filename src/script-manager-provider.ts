@@ -50,36 +50,25 @@ export class ScriptManagerProvider implements vscode.TreeDataProvider<Script>{
             let list: Script[] = new Array();
             const executablePath = this.executablePath;
             try {
-                const port = 3000;
-                const host = '127.0.0.1';
-                const server = http.createServer((request, response) => {
-                    if (request.method === 'POST') {
-                        var body = '';
-                        request.on('data', function (data) {
-                            body += data;
-                            // console.log('Partial body: ' + body)
-                        })
-                        request.on('end', function () {
-                            console.log('Body: ' + body)
-                            list.push(new Script('pippo', executablePath, vscode.Uri.parse('path1'), '.unsuspended.unpaused'));
-                            list.push(new Script('pluto', executablePath, vscode.Uri.parse('path2'), '.unsuspended.paused'));
-                            resolve(list);
-                        });
-                    }
-                });
-                server.listen(port, host);
-
-                const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
+                const dest_pipe_path = "\\\\.\\pipe\\AHK_Rx" + Date.now();
+                const pipe_path = "\\\\.\\pipe\\AHK_Tx" + Date.now();
                 let is_the_second_connection = false;
+
+                let server = net.createServer((stream) => {
+                    stream.on('data', function (blist) {
+                        let serialized_data = new Buffer(blist.buffer).toString('utf8');
+                        stream.end();
+                        launcher.close();
+                        list.push(new Script('pippo', executablePath, vscode.Uri.parse('path1'), '.unsuspended.unpaused'));
+                        list.push(new Script('pluto', executablePath, vscode.Uri.parse('path2'), '.unsuspended.paused'));
+                        resolve(list);
+                    });
+                });
+                server.listen(dest_pipe_path);
+
                 let launcher = net.createServer(function (stream) {
-
-                    // stream.on('data', function (rlist) {
-                    //     let l = rlist;
-                    //     stream.end();
-                    // });
-
                     if (is_the_second_connection)
-                        stream.write(List_All_ScriptStates(`http://${host}:${port}`));
+                        stream.write(List_All_ScriptStates(dest_pipe_path));
                     else
                         is_the_second_connection = true;
                     stream.end();
