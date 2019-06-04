@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as net from 'net';
 import { COMMAND_IDS } from './enums';
-import { List_All_ScriptStates } from './panic';
+import { List_All_ScriptStates, SetScriptSuspendedState, SetScriptPausedState, Kill_Target_Raw_Script } from './panic';
 
 enum ConnectionPhases {
     GetAttribute,
@@ -57,57 +57,6 @@ export class ScriptManagerProvider implements vscode.TreeDataProvider<Script>{
         return Promise.resolve(this.listScripts());
     }
 
-    // private listScripts(): Promise<Script[]> {
-    //     if (!this.executablePath)
-    //         return Promise.reject();
-    //     const promise = new Promise<Script[]>((resolve, reject) => {
-    //         const executablePath = this.executablePath;
-    //         try {
-    //             const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
-    //             let connection_phase: ConnectionPhases = ConnectionPhases.GetAttribute;
-    //             const server = net.createServer(function (stream) {
-    //                 switch (connection_phase) {
-    //                     case ConnectionPhases.GetAttribute:
-    //                         stream.destroy();
-    //                         break;
-    //                     case ConnectionPhases.WriteCode:
-    //                         stream.write(List_All_ScriptStates(pipe_path));
-    //                         stream.end();
-    //                         break;
-    //                     case ConnectionPhases.ReadResult:
-    //                         stream.on('data', (result) => {
-    //                             try {
-    //                                 let list: Script[] = new Array();
-    //                                 let serialized_data = new Buffer(result.buffer).toString('utf8');
-
-    //                                 stream.end();
-    //                                 server.close();
-
-    //                                 let script_list: RawScript[] = JSON.parse(serialized_data);
-    //                                 script_list.forEach(element => {
-    //                                     list.push(new Script(element.pid.toString(), path.basename(element.title), executablePath, vscode.Uri.file(element.title), element.paused, element.suspended));
-    //                                 });
-    //                                 resolve(list);
-    //                             } catch (err) {
-    //                                 reject(err);
-    //                             }
-    //                         });
-    //                         break;
-    //                 }
-    //                 connection_phase++;
-    //             });
-    //             server.listen(pipe_path, function () {
-    //                 launchProcess(executablePath, false, pipe_path);
-    //             });
-
-    //         } catch (err) {
-    //             vscode.window.showErrorMessage('An error has occured while interacting with AHK: ', err);
-    //             reject(err);
-    //         }
-    //     });
-    //     return promise;
-    // }
-
     private listScripts(): Promise<Script[]> {
         if (!this.executablePath)
             return Promise.reject();
@@ -117,7 +66,7 @@ export class ScriptManagerProvider implements vscode.TreeDataProvider<Script>{
                 let serialized_data = new Buffer(result.buffer).toString('utf8');
                 let script_list: RawScript[] = JSON.parse(serialized_data);
                 script_list.forEach(element => {
-                    list.push(new Script(element.pid.toString(), path.basename(element.title), this.executablePath, vscode.Uri.file(element.title), element.paused, element.suspended));
+                    list.push(new Script(element.pid.toString(), path.basename(element.title), this, vscode.Uri.file(element.title), element.paused, element.suspended));
                 });
                 resolve(list);
             });
@@ -197,7 +146,7 @@ export class Script extends vscode.TreeItem {
     constructor(
         public readonly id: string,
         public readonly label: string,
-        public executablePath: string,
+        public parent: ScriptManagerProvider,
         public resourceUri: vscode.Uri,
         public paused: boolean,
         public suspended: boolean,
@@ -207,7 +156,7 @@ export class Script extends vscode.TreeItem {
     }
 
     public get contextValue(): string {
-        return `.${this.suspend ? 'suspended' : 'unsuspended'}.${this.paused ? 'paused' : 'unpaused'}`;
+        return `.${this.suspended ? 'suspended' : 'unsuspended'}.${this.paused ? 'paused' : 'unpaused'}`;
     }
 
     // contextValue = ".unsuspended.unpaused";
@@ -217,38 +166,47 @@ export class Script extends vscode.TreeItem {
     // 	dark: path.join(__filename, '..', '..', 'resources', 'dark', 'script-running.svg')
     // };
 
+    private execAndRefresh(command: string) {
+        try {
+            this.parent.ExecuteAHKCode(this.parent.executablePath, (pipe) => command, (error) => { throw error; });
+            this.parent.refresh();
+        } catch (err) {
+            vscode.window.showErrorMessage('An error has occured while interacting with the specified script ', err);
+        }
+    }
+
     /**
      * suspend
      */
     public suspend() {
-
+        this.execAndRefresh(SetScriptSuspendedState(this.id, true));
     }
 
     /**
      * unSuspend
      */
     public unSuspend() {
-
+        this.execAndRefresh(SetScriptSuspendedState(this.id, false));
     }
 
     /**
      * pause
      */
     public pause() {
-
+        this.execAndRefresh(SetScriptPausedState(this.id, true));
     }
 
     /**
      * resume
      */
     public resume() {
-
+        this.execAndRefresh(SetScriptPausedState(this.id, false));
     }
 
     /**
      * kill
      */
     public kill() {
-
+        this.execAndRefresh(Kill_Target_Raw_Script(this.resourceUri.fsPath));
     }
 }

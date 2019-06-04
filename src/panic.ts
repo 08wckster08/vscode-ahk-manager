@@ -130,3 +130,32 @@ pipe:= DllCall(
     f.Close(), DllCall("CloseHandle", "Ptr", pipe)
   }
 `;
+
+
+export const SetScriptPausedState=(pid: string, turnOn: boolean)=> SetScriptState(pid,turnOn,"65403");
+export const SetScriptSuspendedState=(pid: string, turnOn: boolean)=> SetScriptState(pid,turnOn,"65404");
+
+const SetScriptState = (pid: string, turnOn: boolean, consideredState: string) => `DetectHiddenWindows, On
+
+IsInState( PID, State ) {
+  dhw := A_DetectHiddenWindows
+  DetectHiddenWindows, On  ; This line can be important!
+  hWnd := WinExist("ahk_class AutoHotkey ahk_pid " PID )
+  SendMessage, 0x211  ; WM_ENTERMENULOOP
+  SendMessage, 0x212  ; WM_EXITMENULOOP
+  DetectHiddenWindows, %dhw%
+  mainMenu := DllCall("GetMenu", "uint", hWnd)
+  fileMenu := DllCall("GetSubMenu", "uint", mainMenu, "int", 0)
+  state := DllCall("GetMenuState", "ptr", fileMenu, "uint", State, "uint", 0)
+  isInState := state >> 3 & 1
+  DllCall("CloseHandle", "ptr", fileMenu)
+  DllCall("CloseHandle", "ptr", mainMenu)
+  return isInState
+}
+
+  PID = ${pid}
+  state := IsInState( PID, ${consideredState} ) == ${turnOn}
+
+  if(!state)
+    SendMessage 0x111, ${consideredState},,, ahk_pid %PID%
+`;
