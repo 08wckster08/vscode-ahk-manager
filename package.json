@@ -127,6 +127,13 @@
 						"default": true,
 						"scope": "resource"
 					},
+					"ahk.scriptFolders.openInNewInstance": {
+						"title": "Open script folder in a new instance",
+						"description": "Specifies whether to open the script in a new vscode instance (clic on a TreeItem with [Ctrl] down)",
+						"type": "boolean",
+						"default": true,
+						"scope": "resource"
+					},
 					"ahk.onEmpty.initializeWithHeaderSnippet": {
 						"title": "Initialize with an header snippet",
 						"type": "boolean",
@@ -202,7 +209,7 @@
 					"group": "navigation@2"
 				},
 				{
-					"when": "editorLangId == ahk && config.ahk.displayButtons",
+					"when": "editorLangId == ahk && config.ahk.displayButtons && resourceScheme == file",
 					"command": "ahk.kill",
 					"group": "navigation@3"
 				},

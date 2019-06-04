@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as child_process from 'child_process';
 import * as net from 'net';
 import * as panic from './panic';
+import { checkConnection } from './connectivity';
 import { COMMAND_IDS, DEFAULT_HEADER_SNIPPET_NAME, SETTINGS_KEYS } from './enums';
 import { ScriptManagerProvider, Script } from './script-manager-provider';
 
@@ -24,6 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let docsPath: string | undefined = undefined;
 	let winSpyPath: string | undefined = undefined;
 
+	let open_script_folders_in_new_instance: boolean = true;
 	let on_search_query_template: string | undefined;
 	let on_search_target_browser: string | undefined;
 
@@ -82,8 +84,17 @@ export function activate(context: vscode.ExtensionContext) {
 					openLink(encodedSelection);
 				}
 			}
-			else if (docsPath)
-				launchProcess(docsPath, false);
+			else if (docsPath) {
+				const docs = docsPath;
+				checkConnection((online) => {
+					if (online) {
+						const uri = vscode.Uri.parse('https://www.autohotkey.com/docs/AutoHotkey.htm');
+						vscode.commands.executeCommand('vscode.open', uri);
+					} else {
+						launchProcess(docs, false);
+					}
+				});
+			}
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SWITCH, () => {
@@ -214,7 +225,8 @@ export function activate(context: vscode.ExtensionContext) {
 					treeDataProvider.ExecuteAHKCode(pathify(executablePath), (pipe) => panic.GetKeyState(pipe, 'Ctrl'), (error) => { throw error; }, true, (result) => {
 						let ctrlIsDown = parseInt(new Buffer(result.buffer).toString('utf8'));
 						if (ctrlIsDown) {
-							launchProcess(pathify(process.execPath), false, pathify(uri.fsPath));
+							// launchProcess(pathify(process.execPath), false, pathify(uri.fsPath));
+							vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(path.dirname(uri.fsPath)), open_script_folders_in_new_instance);
 						}
 						else
 							vscode.commands.executeCommand('revealFileInOS', uri);
@@ -309,6 +321,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 			on_search_target_browser = configuration.get(SETTINGS_KEYS.OnSearchTargetBrowser);
 			on_search_query_template = configuration.get(SETTINGS_KEYS.OnSearchQueryTemplate);
+			open_script_folders_in_new_instance = configuration.get(SETTINGS_KEYS.OpenScriptFoldersInNewInstance, true);
+
 		} catch (err) {
 			console.error(err);
 			vscode.window.showErrorMessage(err.message);
