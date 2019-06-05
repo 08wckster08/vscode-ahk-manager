@@ -40,6 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk")
 		parseConfiguration(vscode.window.activeTextEditor.document.uri, vscode.window.activeTextEditor.document.getText().length);
+	else
+		parseConfiguration();
 
 	treeDataProvider = new ScriptManagerProvider(pathify(executablePath || ""));
 	context.subscriptions.push(vscode.window.registerTreeDataProvider('ahk.scripts-manager', treeDataProvider));
@@ -240,6 +242,40 @@ export function activate(context: vscode.ExtensionContext) {
 					vscode.window.showErrorMessage('An error has occured while opening the file', err1, err2);
 				}
 			}
+		}),
+		vscode.languages.registerDocumentFormattingEditProvider('ahk', {
+			provideDocumentFormattingEdits(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
+				let promise: Promise<vscode.TextEdit[]> = new Promise((c, r) => {
+					let replacement: vscode.TextEdit[] = new Array();
+					if (!executablePath) {
+						r();
+						return;
+					}
+
+					// const firstLine = document.lineAt(0);
+					// if (firstLine.text !== '42') {
+					// 	return [vscode.TextEdit.insert(firstLine.range.start, '42\n')];
+					// }
+					// let editor = vscode.window.activeTextEditor;
+					let oldClipboard = vscode.env.clipboard.readText();
+					let text = document.getText();
+					vscode.env.clipboard.writeText(text);
+					treeDataProvider.ExecuteAHKCode(pathify(executablePath), (pipe) => panic.FormatText(pipe), (error) => { throw error; }, true, (result) => {
+						text = new Buffer(result.buffer).toString('utf8');
+						// editor.edit((builder) => {
+						// 	let invalidRange = new vscode.Range(0, 0, document.lineCount /*intentionally missing the '-1' */, 0);
+						// 	let fullRange = document.validateRange(invalidRange);
+						// 	builder.replace(fullRange, text);
+						// });
+						let invalidRange = new vscode.Range(0, 0, document.lineCount, 0);
+						let fullRange = document.validateRange(invalidRange);
+						oldClipboard.then((value) => vscode.env.clipboard.writeText(value));
+						replacement.push(vscode.TextEdit.replace(fullRange, text));
+						c(replacement);
+					});
+				});
+				return promise;
+			}
 		})
 	);
 
@@ -304,9 +340,9 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}
 
-	function parseConfiguration(uri: vscode.Uri, len: number) {
+	function parseConfiguration(uri?: vscode.Uri, len?: number) {
 		try {
-			const configuration = vscode.workspace.getConfiguration('', uri);
+			const configuration = uri ? vscode.workspace.getConfiguration('', uri) : vscode.workspace.getConfiguration();
 			const initializeWithHeaderSnippet: boolean | undefined = configuration.get(SETTINGS_KEYS.InitializeWithHeaderSnippet);
 			if (initializeWithHeaderSnippet && len === 0) {
 				const headerSnippetName: string | undefined = configuration.get(SETTINGS_KEYS.OverrideHeaderSnippet, DEFAULT_HEADER_SNIPPET_NAME);

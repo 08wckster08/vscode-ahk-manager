@@ -2,7 +2,7 @@
 
 Welcome to my third Extension !
 
-Based on the [Sublime plug-In](https://github.com/ahkscript/SublimeAutoHotkey),
+Inspired by the [Sublime plug-In](https://github.com/ahkscript/SublimeAutoHotkey),
 its the Yin of the [AutoHotkey extension](https://github.com/stef-levesque/vscode-autohotkey).
 
 I like to write AutoHotkey scripts, this language is amazing, but I often found myself go back and forth between writing an app, looking for it in my messy tray, reloading it, testing it, grab the browser and tuning it again. So I decided to improve my tools and add the capabiliy to just reload a script through a command and/or a button.
@@ -14,6 +14,7 @@ With this extension you can cut off the development time using handy commands.
 * If you put an icon with the same name of the `script.ahk` (so `script.ico`) the icon will be used by the compiler.
 * Using `Ctrl`+`A` `Ctrl`+`D` you can consult the docs
   * if you have a selection you could search about it on google.
+* [Sperimental] an experimental formatter has been added so you could format a little bit the code
 
 > WARNING : This app could cause serious addictions !!! 😜
 
@@ -47,12 +48,13 @@ This extension contributes the following settings:
 
 ## Further Updates
 
-[] running scripts treelist
+[X] running scripts treelist
     [] improve icons
 [] debugger
 [X] if editorHasSelection search on internet for it when `Ctrl+A Ctrl+D`
 [] saved compiled destinations for scripts (maybe in settings.)
 [] improve icons
+[] improve code
 
 ## Release Notes
 
