@@ -159,8 +159,11 @@ export class Script extends vscode.TreeItem {
         return `.${this.suspended ? 'suspended' : 'unsuspended'}.${this.paused ? 'paused' : 'unpaused'}`;
     }
 
+    public get iconPath(){
+        return path.join(__filename, '..', '..', 'media', 'states', `${this.contextValue.replace(/\./g,'_')}.ico`);
+    }
     // contextValue = ".unsuspended.unpaused";
-    iconPath = path.join(__filename, '..', '..', 'resources', 'light', 'script-running.svg');
+    //iconPath = path.join(__filename, '..', '..', 'resources', 'light', 'script-running.svg');
     // {
     // 	light: path.join(__filename, '..', '..', 'resources', 'light', 'script-running.svg'),
     // 	dark: path.join(__filename, '..', '..', 'resources', 'dark', 'script-running.svg')

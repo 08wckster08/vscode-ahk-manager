@@ -82,30 +82,34 @@
 			{
 				"command": "ahk.scripts-manager.refresh",
 				"title": "Refresh",
-				"enablement": "view == ahk.scripts-manager",
 				"icon": {
 					"light": "media/light/refresh.svg",
 					"dark": "media/dark/refresh.svg"
-				}
+				},
+				"enablement": "view == ahk.scripts-manager"
 			},
 			{
 				"command": "ahk.scripts-manager.suspend-on",
 				"title": "Suspend",
+				"icon": "./media/mute.svg",
 				"enablement": "view == ahk.scripts-manager"
 			},
 			{
 				"command": "ahk.scripts-manager.suspend-off",
 				"title": "Unsuspend",
+				"icon": "./media/mic.svg",
 				"enablement": "view == ahk.scripts-manager"
 			},
 			{
 				"command": "ahk.scripts-manager.pause-on",
 				"title": "Pause",
+				"icon": "./media/pause.svg",
 				"enablement": "view == ahk.scripts-manager"
 			},
 			{
 				"command": "ahk.scripts-manager.pause-off",
 				"title": "Resume",
+				"icon": "./media/play.svg",
 				"enablement": "view == ahk.scripts-manager"
 			},
 			{
