@@ -2,6 +2,7 @@ import * as process from 'child_process';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as net from 'net';
+import { cfg } from './configuration';
 import { COMMAND_IDS } from './enums';
 import { List_All_ScriptStates, SetScriptSuspendedState, SetScriptPausedState, Kill_Target_Raw_Script } from './panic';
 
@@ -29,19 +30,20 @@ export class ScriptManagerProvider implements vscode.TreeDataProvider<Script>{
     /**
      *  It manages all the running scripts
      */
-    constructor(public _executablePath: string | undefined) {
+    constructor(/*public _executablePath: string | undefined*/) {
     }
 
-    public set executablePath(v: string) {
-        this._executablePath = v;
-        this.refresh();
-    }
+    // public set executablePath(v: string) {
+    //     // this._executablePath = v;
+    //     this.refresh();
+    // }
 
 
-    public get executablePath(): string {
-        return this._executablePath || "";
-    }
+    // public get executablePath(): string {
+    //     // return this._executablePath || "";
+    // }
 
+    public firstChild: Script | undefined;
 
     public refresh(): any {
         this._onDidChangeTreeData.fire();
@@ -58,16 +60,18 @@ export class ScriptManagerProvider implements vscode.TreeDataProvider<Script>{
     }
 
     private listScripts(): Promise<Script[]> {
-        if (!this.executablePath)
+        if (!cfg.executablePath)
             return Promise.reject();
         const promise = new Promise<Script[]>((resolve, reject) => {
-            this.ExecuteAHKCode(this.executablePath, (pipe_path) => List_All_ScriptStates(pipe_path), (err) => reject(err), true, (result) => {
+            this.ExecuteAHKCode(cfg.executablePath, (pipe_path) => List_All_ScriptStates(pipe_path), (err) => reject(err), true, (result) => {
                 let list: Script[] = new Array();
                 let serialized_data = new Buffer(result.buffer).toString('utf8');
                 let script_list: RawScript[] = JSON.parse(serialized_data);
                 script_list.forEach(element => {
                     list.push(new Script(element.pid.toString(), path.basename(element.title), this, vscode.Uri.file(element.title), element.paused, element.suspended));
                 });
+                if (!this.firstChild)
+                    this.firstChild = list[0];
                 resolve(list);
             });
         });
@@ -159,8 +163,8 @@ export class Script extends vscode.TreeItem {
         return `.${this.suspended ? 'suspended' : 'unsuspended'}.${this.paused ? 'paused' : 'unpaused'}`;
     }
 
-    public get iconPath(){
-        return path.join(__filename, '..', '..', 'media', 'states', `${this.contextValue.replace(/\./g,'_')}.ico`);
+    public get iconPath() {
+        return path.join(__filename, '..', '..', 'media', 'states', `${this.contextValue.replace(/\./g, '_')}.ico`);
     }
     // contextValue = ".unsuspended.unpaused";
     //iconPath = path.join(__filename, '..', '..', 'resources', 'light', 'script-running.svg');
@@ -171,7 +175,7 @@ export class Script extends vscode.TreeItem {
 
     private execAndRefresh(command: string) {
         try {
-            this.parent.ExecuteAHKCode(this.parent.executablePath, (pipe) => command, (error) => { throw error; });
+            this.parent.ExecuteAHKCode(cfg.executablePath, (pipe) => command, (error) => { throw error; });
             this.parent.refresh();
         } catch (err) {
             vscode.window.showErrorMessage('An error has occured while interacting with the specified script ', err);

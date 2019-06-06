@@ -16,6 +16,10 @@ export const COMMAND_IDS: any = {
 		PAUSE_OFF: "ahk.scripts-manager.pause-off",
 		KILL: "ahk.scripts-manager.kill",
 		SHOW_IN_EXPLORER: "ahk.scripts-manager.show-in-explorer"
+	},
+
+	COMMONS: {
+		REVEAL_FILE_IN_OS: "revealFileInOS"
 	}
 };
 
@@ -32,3 +36,6 @@ export const SETTINGS_KEYS: any = {
 };
 
 export const DEFAULT_HEADER_SNIPPET_NAME = "Default Sublime Header";
+
+export const REVEAL_FILE_IN_OS = "Reveal file in OS";
+export const LAUNCH = "Launch now";

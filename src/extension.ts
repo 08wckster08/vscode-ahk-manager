@@ -9,9 +9,9 @@ import * as child_process from 'child_process';
 import * as net from 'net';
 import * as panic from './panic';
 import { checkConnection } from './connectivity';
-import { COMMAND_IDS, DEFAULT_HEADER_SNIPPET_NAME, SETTINGS_KEYS } from './enums';
+import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH } from './enums';
 import { ScriptManagerProvider, Script } from './script-manager-provider';
-
+import { cfg } from './configuration';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -19,45 +19,34 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let runned_scripts: string[] = new Array();
 	let compiled_scripts: string[] = new Array();
-	let overriddenCompiledDestination: string | undefined;
-	let executablePath: string | undefined = undefined;
-	let compilerPath: string | undefined = undefined;
-	let docsPath: string | undefined = undefined;
-	let winSpyPath: string | undefined = undefined;
 
-	let open_script_folders_in_new_instance: boolean = true;
-	let on_search_query_template: string | undefined;
-	let on_search_target_browser: string | undefined;
-
+	var delayed_saving_timeout: NodeJS.Timer;
 	let treeDataProvider: ScriptManagerProvider;
 	let scriptViewer: vscode.TreeView<Script>;
 
-	let compile_on_save: boolean = false;
-	let run_on_save: boolean = false;
-	var delayed_saving_timeout: NodeJS.Timer;
+	cfg.parseConfiguration(vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk" ? vscode.window.activeTextEditor.document.uri : undefined);
+	if (vscode.window.activeTextEditor)
+		cfg.initializeEmptyWithHeaderSnippetIfNeeded(vscode.window.activeTextEditor.document.getText().length);
 
-	let is_overridden = false;
 
-	if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk")
-		parseConfiguration(vscode.window.activeTextEditor.document.uri, vscode.window.activeTextEditor.document.getText().length);
-	else
-		parseConfiguration();
-
-	treeDataProvider = new ScriptManagerProvider(pathify(executablePath || ""));
+	treeDataProvider = new ScriptManagerProvider();
 	context.subscriptions.push(vscode.window.registerTreeDataProvider('ahk.scripts-manager', treeDataProvider));
 	scriptViewer = vscode.window.createTreeView('ahk.scripts-manager', { treeDataProvider });
-
 
 	context.subscriptions.push(
 
 		vscode.window.onDidChangeActiveTextEditor(e => {
-			if (e && e.document.languageId === 'ahk')
-				parseConfiguration(e.document.uri, e.document.getText().length);
+			if (e && e.document.languageId === 'ahk') {
+				cfg.parseConfiguration(e.document.uri);
+				cfg.initializeEmptyWithHeaderSnippetIfNeeded(e.document.getText().length);
+			}
 		}),
 
 		vscode.workspace.onDidOpenTextDocument(e => {
-			if (e.languageId === 'ahk')
-				parseConfiguration(e.uri, e.getText().length);
+			if (e.languageId === 'ahk') {
+				cfg.parseConfiguration(e.uri);
+				cfg.initializeEmptyWithHeaderSnippetIfNeeded(e.getText().length);
+			}
 		}),
 
 		vscode.workspace.onDidSaveTextDocument(e => {
@@ -68,11 +57,11 @@ export function activate(context: vscode.ExtensionContext) {
 				clearTimeout(delayed_saving_timeout);
 
 			delayed_saving_timeout = setTimeout(() => {
-				if (compile_on_save && compiled_scripts.includes(e.uri.fsPath)) {
+				if (cfg.compile_on_save && compiled_scripts.includes(e.uri.fsPath)) {
 					vscode.commands.executeCommand(COMMAND_IDS.KILL);
 					vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
 				}
-				if (run_on_save && runned_scripts.includes(e.uri.fsPath))
+				if (cfg.run_on_save && runned_scripts.includes(e.uri.fsPath))
 					vscode.commands.executeCommand(COMMAND_IDS.RUN);
 				// setTimeout(() => vscode.commands.executeCommand(COMMAND_IDS.RUN), compile_on_save ? 2000 : 1); // the timer delays the RUN command after the KILL above
 			}, 1000);
@@ -86,14 +75,14 @@ export function activate(context: vscode.ExtensionContext) {
 					openLink(encodedSelection);
 				}
 			}
-			else if (docsPath) {
-				const docs = docsPath;
+			else if (cfg.docsPath) {
+				// const docs = cfg.docsPath;
 				checkConnection((online) => {
 					if (online) {
 						const uri = vscode.Uri.parse('https://www.autohotkey.com/docs/AutoHotkey.htm');
 						vscode.commands.executeCommand('vscode.open', uri);
 					} else {
-						launchProcess(docs, false);
+						launchProcess(cfg.docsPath, false);
 					}
 				});
 			}
@@ -108,12 +97,11 @@ export function activate(context: vscode.ExtensionContext) {
 						'Executable': ['exe']
 					}
 				};
-				if (executablePath)
-					options.defaultUri = vscode.Uri.file(path.dirname(executablePath));
+
+				options.defaultUri = cfg.executableDir;
 				vscode.window.showOpenDialog(options).then(fileUri => {
 					if (fileUri && fileUri[0]) {
-						setExecutablePaths(fileUri[0].fsPath);
-						is_overridden = true;
+						cfg.overrideExecutablePaths(fileUri[0].fsPath);
 					}
 				});
 			} catch (err) {
@@ -122,17 +110,17 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SPY, () => {
-			if (vscode.window.activeTextEditor && executablePath && winSpyPath) {
-				launchProcess(pathify(executablePath), false, "/ErrorStdOut", "/r", winSpyPath);
+			if (vscode.window.activeTextEditor && cfg.executablePath && cfg.winSpyPath) {
+				launchProcess(cfg.executablePath, false, "/ErrorStdOut", "/r", cfg.winSpyPath);
 			}
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUN, () => {
-			if (vscode.window.activeTextEditor && executablePath) {
+			if (vscode.window.activeTextEditor && cfg.executablePath) {
 				const scriptFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
 				if (!runned_scripts.includes(scriptFilePath))
 					runned_scripts.push(scriptFilePath);
-				launchProcess(pathify(executablePath), false, "/ErrorStdOut", "/r", pathify(scriptFilePath));
+				launchProcess(cfg.executablePath, false, "/ErrorStdOut", "/r", cfg.pathify(scriptFilePath));
 			}
 		}),
 
@@ -141,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
 				if (!vscode.window.activeTextEditor)
 					return;
 				let scriptFileName = path.basename(vscode.window.activeTextEditor.document.uri.fsPath);
-				let compiledPath = overriddenCompiledDestination;
+				let compiledPath = cfg.overriddenCompiledDestination;
 				if (!compiledPath)
 					compiledPath = scriptFileName.replace(path.extname(scriptFileName), ".exe");
 				else
@@ -156,17 +144,29 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.COMPILE, () => {
 			try {
-				if (vscode.window.activeTextEditor && compilerPath) {
+				if (vscode.window.activeTextEditor && cfg.compilerPath) {
 					const scriptFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
 					if (!compiled_scripts.includes(scriptFilePath))
 						compiled_scripts.push(scriptFilePath);
 
 					let iconPath = scriptFilePath.replace(".ahk", ".ico");
-					iconPath = fs.existsSync(iconPath) ? "/icon " + pathify(iconPath) : "";
-					if (overriddenCompiledDestination)
-						launchProcess(compilerPath, false, "/in", pathify(scriptFilePath), "/out", overriddenCompiledDestination, iconPath);
-					else
-						launchProcess(compilerPath, false, "/in", pathify(scriptFilePath), iconPath);
+					iconPath = fs.existsSync(iconPath) ? "/icon " + cfg.pathify(iconPath) : "";
+
+					let destination = cfg.overriddenCompiledDestination ? cfg.overriddenCompiledDestination : scriptFilePath.replace('.ahk', '.exe');
+					launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), "/out", cfg.pathify(destination), iconPath);
+					// else
+					// 	launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), iconPath);
+
+					vscode.window.showInformationMessage(`The script has been compiled!\nYou can find it on \`${destination}\``, LAUNCH, REVEAL_FILE_IN_OS).then((res) => {
+						switch (res) {
+							case LAUNCH:
+								vscode.commands.executeCommand(COMMAND_IDS.RUN);
+								break;
+							case REVEAL_FILE_IN_OS:
+								vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, vscode.Uri.file(destination));
+								break;
+						}
+					});
 				}
 			} catch (err) {
 				vscode.window.showErrorMessage("An error has occured while compiling the script: " + err.message);
@@ -175,20 +175,19 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.COMPILE_AS, () => {
 			try {
-				if (vscode.window.activeTextEditor && compilerPath) {
+				if (vscode.window.activeTextEditor && cfg.compilerPath) {
 					const options: vscode.SaveDialogOptions = {
 						saveLabel: 'Select the destination',
 						filters: {
 							'Executable': ['exe']
 						}
 					};
-					if (executablePath)
-						options.defaultUri = vscode.Uri.file(path.dirname(executablePath));
+					if (cfg.executablePath)
+						options.defaultUri = vscode.Uri.file(path.dirname(cfg.executablePath));
 					vscode.window.showSaveDialog(options).then(fileUri => {
-						if (vscode.window.activeTextEditor && compilerPath && fileUri && fileUri) {
-							overriddenCompiledDestination = pathify(fileUri.fsPath);
+						if (vscode.window.activeTextEditor && cfg.compilerPath && fileUri && fileUri) {
+							cfg.overriddenCompiledDestination = cfg.pathify(fileUri.fsPath);
 							vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
-							// launchProcess(compilerPath, "/in", pathify(vscode.window.activeTextEditor.document.uri.fsPath), "/out", overriddenCompiledDestination);
 						}
 					});
 				}
@@ -223,21 +222,21 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.SHOW_IN_EXPLORER, (uri: vscode.Uri) => {
 			try {
-				if (executablePath)
-					treeDataProvider.ExecuteAHKCode(pathify(executablePath), (pipe) => panic.GetKeyState(pipe, 'Ctrl'), (error) => { throw error; }, true, (result) => {
+				if (cfg.executablePath)
+					treeDataProvider.ExecuteAHKCode(cfg.executablePath, (pipe) => panic.GetKeyState(pipe, 'Ctrl'), (error) => { throw error; }, true, (result) => {
 						let ctrlIsDown = parseInt(new Buffer(result.buffer).toString('utf8'));
 						if (ctrlIsDown) {
 							// launchProcess(pathify(process.execPath), false, pathify(uri.fsPath));
-							vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(path.dirname(uri.fsPath)), open_script_folders_in_new_instance);
+							vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(path.dirname(uri.fsPath)), cfg.open_script_folders_in_new_instance);
 						}
 						else
-							vscode.commands.executeCommand('revealFileInOS', uri);
+							vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, uri);
 					});
 				else
-					vscode.commands.executeCommand('revealFileInOS', uri);
+					vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, uri);
 			} catch (err1) {
 				try {
-					vscode.commands.executeCommand('revealFileInOS', uri);
+					vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, uri);
 				} catch (err2) {
 					vscode.window.showErrorMessage('An error has occured while opening the file', err1, err2);
 				}
@@ -247,7 +246,7 @@ export function activate(context: vscode.ExtensionContext) {
 			provideDocumentFormattingEdits(document: vscode.TextDocument): Promise<vscode.TextEdit[]> {
 				let promise: Promise<vscode.TextEdit[]> = new Promise((c, r) => {
 					let replacement: vscode.TextEdit[] = new Array();
-					if (!executablePath) {
+					if (!cfg.executablePath) {
 						r();
 						return;
 					}
@@ -260,7 +259,7 @@ export function activate(context: vscode.ExtensionContext) {
 					let oldClipboard = vscode.env.clipboard.readText();
 					let text = document.getText();
 					vscode.env.clipboard.writeText(text);
-					treeDataProvider.ExecuteAHKCode(pathify(executablePath), (pipe) => panic.FormatText(pipe), (error) => { throw error; }, true, (result) => {
+					treeDataProvider.ExecuteAHKCode(cfg.executablePath, (pipe) => panic.FormatText(pipe), (error) => { throw error; }, true, (result) => {
 						text = new Buffer(result.buffer).toString('utf8');
 						// editor.edit((builder) => {
 						// 	let invalidRange = new vscode.Range(0, 0, document.lineCount /*intentionally missing the '-1' */, 0);
@@ -281,10 +280,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	function openLink(encodedSelection: string) {
 		try {
-			if (!on_search_query_template)
+			if (!cfg.on_search_query_template)
 				return;
-			const template = on_search_query_template.replace('${encodedSelection}', encodedSelection);
-			require('open')(template, on_search_target_browser);
+			const template = cfg.on_search_query_template.replace('${encodedSelection}', encodedSelection);
+			require('open')(template, cfg.on_search_target_browser);
 		} catch (err) {
 			vscode.window.showErrorMessage(`An Error has occured while searching for info about "${encodedSelection}"`, err);
 		}
@@ -303,8 +302,8 @@ export function activate(context: vscode.ExtensionContext) {
 				stream.end();
 			});
 			server.listen(pipe_path, function () {
-				if (executablePath)
-					launchProcess(pathify(executablePath), false, pipe_path);
+				if (cfg.executablePath)
+					launchProcess(cfg.executablePath, false, pipe_path);
 			});
 		} catch (err) {
 			vscode.window.showErrorMessage('An error has occured while interacting with AHK: ', err);
@@ -340,45 +339,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}
 
-	function parseConfiguration(uri?: vscode.Uri, len?: number) {
-		try {
-			const configuration = uri ? vscode.workspace.getConfiguration('', uri) : vscode.workspace.getConfiguration();
-			const initializeWithHeaderSnippet: boolean | undefined = configuration.get(SETTINGS_KEYS.InitializeWithHeaderSnippet);
-			if (initializeWithHeaderSnippet && len === 0) {
-				const headerSnippetName: string | undefined = configuration.get(SETTINGS_KEYS.OverrideHeaderSnippet, DEFAULT_HEADER_SNIPPET_NAME);
-				vscode.commands.executeCommand('editor.action.insertSnippet', { name: headerSnippetName });
-			}
-			const filePath: string | undefined = configuration.get(SETTINGS_KEYS.ExecutablePath);
-			if (filePath && !is_overridden) {
-				setExecutablePaths(filePath);
-			}
-			compile_on_save = configuration.get(SETTINGS_KEYS.CompileOnSave, false);
-			run_on_save = configuration.get(SETTINGS_KEYS.RunOnSave, false);
 
-			on_search_target_browser = configuration.get(SETTINGS_KEYS.OnSearchTargetBrowser);
-			on_search_query_template = configuration.get(SETTINGS_KEYS.OnSearchQueryTemplate);
-			open_script_folders_in_new_instance = configuration.get(SETTINGS_KEYS.OpenScriptFoldersInNewInstance, true);
-
-		} catch (err) {
-			console.error(err);
-			vscode.window.showErrorMessage(err.message);
-		}
-	}
-
-	function setExecutablePaths(filePath: string) {
-		executablePath = filePath;
-		if (treeDataProvider)
-			treeDataProvider.executablePath = pathify(filePath);
-		winSpyPath = pathify(path.join(path.dirname(filePath), 'WindowSpy.ahk'));
-		docsPath = pathify(path.join(path.dirname(filePath), 'AutoHotkey.chm'));
-		compilerPath = pathify(path.join(path.dirname(filePath), 'Compiler', 'Ahk2Exe.exe'));
-	}
-
-	function pathify(stringPath: string): string {
-		const stringPathDelimiter = '"';
-		const path = vscode.Uri.file(stringPath).fsPath;
-		return stringPathDelimiter.concat(path, stringPathDelimiter);
-	}
 	/*
 		// Example 1: Reading Window scoped configuration
 		// const configuredView = vscode.workspace.getConfiguration().get('conf.view.showOnWindowOpen');
