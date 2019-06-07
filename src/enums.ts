@@ -7,6 +7,7 @@ export const COMMAND_IDS: any = {
 	SPY: "ahk.spy",
 	DOCS: "ahk.docs",
 	SWITCH: "ahk.temporary-switch-executable",
+	REMOVE_METADATA: "ahk.remove-script-metadata",
 
 	TREE_COMMANDS: {
 		REFRESH: "ahk.scripts-manager.refresh",

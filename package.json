@@ -38,46 +38,53 @@
 				"command": "ahk.compile",
 				"title": "Compile Script",
 				"category": "AHK",
-				"icon": "./media/package.svg"
+				"icon": "./media/package.svg",
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.compile-as",
 				"title": "Compile Script As",
-				"category": "AHK"
+				"category": "AHK",
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.run",
 				"title": "Run Script",
 				"category": "AHK",
-				"icon": "./media/run.svg"
+				"icon": "./media/run.svg",
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.kill",
 				"title": "Kill Exe/Script",
 				"category": "AHK",
-				"icon": "./media/kill.svg"
+				"icon": "./media/kill.svg",
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.run-buffer",
 				"title": "Run As Piped Buffer",
 				"category": "AHK",
 				"icon": "./media/zap.svg",
-				"enablement": "editorHasSelection"
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.spy",
 				"title": "Window Spy",
-				"category": "AHK"
+				"category": "AHK",
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.temporary-switch-executable",
 				"title": "Switch Executable (Temporary)",
-				"category": "AHK"
+				"category": "AHK",
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.docs",
 				"title": "Open Docs",
-				"category": "AHK"
+				"category": "AHK",
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.scripts-manager.refresh",
@@ -117,6 +124,11 @@
 				"title": "Kill",
 				"icon": "./media/kill.svg",
 				"enablement": "view == ahk.scripts-manager"
+			},
+			{
+				"command": "ahk.remove-script-metadata",
+				"title": "Forget scripts metadata",
+				"enablement": "languageId == ahk"
 			}
 		],
 		"snippets": [{
@@ -303,6 +315,11 @@
 			{
 				"command": "editor.action.selectAll",
 				"key": "ctrl+a ctrl+a",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "workbench.view.extension.ahk-manager",
+				"key": "ctrl+shift+a",
 				"when": "resourceLangId == ahk && editorTextFocus"
 			}
 		]
