@@ -15,7 +15,7 @@ import { cfg } from './configuration';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	console.log('vscode-ahk-manager is ready !');
+	console.log(`${cfg.appName} is ready : let's script something awesome !`);
 
 	let runned_scripts: string[] = new Array();
 	let compiled_scripts: string[] = new Array();
@@ -80,6 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 				checkConnection((online) => {
 					if (online) {
 						const uri = vscode.Uri.parse('https://www.autohotkey.com/docs/AutoHotkey.htm');
+						// vscode.env.openExternal(uri);
 						vscode.commands.executeCommand('vscode.open', uri);
 					} else {
 						launchProcess(cfg.docsPath, false);
@@ -200,6 +201,10 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(COMMAND_IDS.RUNBUFFERED, () => {
 			const buffer = getValidSelectedText();
 			runBuffered(buffer);
+		}),
+
+		vscode.commands.registerCommand(COMMAND_IDS.REMOVE_METADATA, () => {
+			// todo remove metadata
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.REFRESH, (element: Script) => {
