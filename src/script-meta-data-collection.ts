@@ -95,15 +95,31 @@ export class ScriptMetaDataCollection {
             throw new Error("Current is null...");
         return this.current.compiledDestination;
     }
+
+    public setCurrentTrayIcon(fsPath: string) {
+        if (this.current) {
+            this.current.trayIconPath = fsPath;
+            this.saveScriptMetaData();
+        }
+    }
+
+    /**
+     * getCurrentDestination
+     */
+    public getCurrentTrayIcon(): string {
+        if (!this.current)
+            throw new Error("Current is null...");
+        return this.current.trayIconPath;
+    }
 }
 
 export class ScriptMetaData {
     public compiledDestination: string;
     public scriptArguments: string | undefined;
-    public scriptImage: string;
+    public trayIconPath: string;
     public constructor(public scripFilePath: string) {
         this.compiledDestination = this.scripFilePath.replace('.ahk', '.exe');
-        this.scriptImage = this.scripFilePath.replace('.ahk', '.ico');
+        this.trayIconPath = this.scripFilePath.replace('.ahk', '.ico');
     }
 }
 

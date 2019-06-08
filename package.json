@@ -87,6 +87,11 @@
 				"enablement": "resourceLangId == ahk"
 			},
 			{
+				"command": "ahk.set-tray-icon",
+				"title": "Set the script tray icon",
+				"enablement": "languageId == ahk"
+			},
+			{
 				"command": "ahk.scripts-manager.refresh",
 				"title": "Refresh",
 				"icon": {
@@ -310,6 +315,11 @@
 			{
 				"command": "ahk.docs",
 				"key": "ctrl+a ctrl+d",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.set-tray-icon",
+				"key": "ctrl+a ctrl+i",
 				"when": "resourceLangId == ahk && editorTextFocus"
 			},
 			{

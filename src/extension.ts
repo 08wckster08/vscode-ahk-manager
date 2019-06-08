@@ -150,7 +150,7 @@ export function activate(context: vscode.ExtensionContext) {
 					if (!compiled_scripts.includes(scriptFilePath))
 						compiled_scripts.push(scriptFilePath);
 
-					let iconPath = scriptFilePath.replace(".ahk", ".ico");
+					let iconPath = scriptCollection.getCurrentTrayIcon();
 					iconPath = fs.existsSync(iconPath) ? "/icon " + cfg.pathify(iconPath) : "";
 
 					let destination = scriptCollection.getCurrentDestination();
@@ -204,6 +204,29 @@ export function activate(context: vscode.ExtensionContext) {
 			runBuffered(buffer);
 		}),
 
+		vscode.commands.registerCommand(COMMAND_IDS.SET_TRAY_ICON, () => {
+			try {
+				if (vscode.window.activeTextEditor) {
+					const options: vscode.OpenDialogOptions = {
+						openLabel: 'Select the icon',
+						canSelectMany: false,
+						filters: {
+							'icon': ['ico']
+						}
+					};
+					if (cfg.executablePath)
+						options.defaultUri = vscode.Uri.file(path.dirname(cfg.executablePath));
+					vscode.window.showOpenDialog(options).then(fileUri => {
+						if (vscode.window.activeTextEditor && fileUri) {
+							scriptCollection.setCurrentTrayIcon(fileUri[0].fsPath);
+						}
+					});
+				}
+			} catch (err) {
+				console.log(err);
+				vscode.window.showErrorMessage("An error has occured while compiling the script: " + err.message);
+			}
+		}),
 		vscode.commands.registerCommand(COMMAND_IDS.REMOVE_METADATA, () => {
 			// todo remove metadata
 		}),
