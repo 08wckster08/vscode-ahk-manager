@@ -14,7 +14,8 @@ With this extension you can cut off the development time using handy commands.
 * If you put an icon with the same name of the `script.ahk` (so `script.ico`) the icon will be used by the compiler.
 * Using `Ctrl`+`A` `Ctrl`+`D` you can consult the docs
   * if you have a selection you could search about it on google.
-* [Sperimental] an experimental formatter has been added so you could format a little bit the code
+* [Sperimental] an experimental formatter has been added so you could format a little bit the code (use a simple ahk script)
+* Set Script's command line arguments per script
 
 > WARNING : This app could cause serious addictions !!! 😜
 

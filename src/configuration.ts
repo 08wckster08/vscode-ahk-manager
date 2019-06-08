@@ -15,6 +15,7 @@ export class Configuration {
 
     public compile_on_save: boolean = false;
     public run_on_save: boolean = false;
+    public run_on_args: boolean = false;
 
     // public overriddenCompiledDestination: string | undefined;
     public is_overridden = false;
@@ -56,7 +57,7 @@ export class Configuration {
             this.on_search_target_browser = configuration.get(SETTINGS_KEYS.OnSearchTargetBrowser) || "";
             this.on_search_query_template = configuration.get(SETTINGS_KEYS.OnSearchQueryTemplate) || "";
             this.open_script_folders_in_new_instance = configuration.get(SETTINGS_KEYS.OpenScriptFoldersInNewInstance, true);
-
+            this.run_on_args = configuration.get(SETTINGS_KEYS.RunOnArgs, false);
             if (uri)
                 scriptCollection.setCurrent(uri);
         } catch (err) {
