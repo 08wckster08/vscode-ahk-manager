@@ -9,7 +9,7 @@ import * as child_process from 'child_process';
 import * as net from 'net';
 import * as panic from './panic';
 import { checkConnection } from './connectivity';
-import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH, EXTENSION_NAME } from './enums';
+import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH, EXTENSION_NAME, SETTINGS_KEYS } from './enums';
 import { ScriptManagerProvider, Script } from './script-manager-provider';
 import { cfg } from './configuration';
 import { scriptCollection } from './script-meta-data-collection';
@@ -121,7 +121,7 @@ export function activate(context: vscode.ExtensionContext) {
 				const scriptFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
 				if (!runned_scripts.includes(scriptFilePath))
 					runned_scripts.push(scriptFilePath);
-				launchProcess(cfg.executablePath, false, "/ErrorStdOut", "/r", cfg.pathify(scriptFilePath));
+				launchProcess(cfg.executablePath, false, "/ErrorStdOut", "/r", cfg.pathify(scriptFilePath), scriptCollection.getCurrentScriptArguments());
 			}
 		}),
 
@@ -150,7 +150,7 @@ export function activate(context: vscode.ExtensionContext) {
 					if (!compiled_scripts.includes(scriptFilePath))
 						compiled_scripts.push(scriptFilePath);
 
-					let iconPath = scriptCollection.getCurrentTrayIcon();
+					let iconPath = scriptCollection.getCurrentIcon();
 					iconPath = fs.existsSync(iconPath) ? "/icon " + cfg.pathify(iconPath) : "";
 
 					let destination = scriptCollection.getCurrentDestination();
@@ -208,17 +208,77 @@ export function activate(context: vscode.ExtensionContext) {
 			try {
 				if (vscode.window.activeTextEditor) {
 					const options: vscode.OpenDialogOptions = {
+						openLabel: 'Select the tray icon',
+						canSelectMany: false,
+						filters: {
+							'icon': ['ico']
+						}
+					};
+					if (scriptCollection.getCurrentTrayIcon())
+						options.defaultUri = vscode.Uri.file(path.dirname(scriptCollection.getCurrentTrayIcon()));
+					else if (scriptCollection.getCurrentScriptFilePath())
+						options.defaultUri = vscode.Uri.file(path.dirname(scriptCollection.getCurrentScriptFilePath()));
+					vscode.window.showOpenDialog(options).then(fileUri => {
+						const editor = vscode.window.activeTextEditor;
+						if (editor && fileUri) {
+							const selPath = fileUri[0].fsPath;
+							let text = editor.document.getText();
+							const reg: RegExp = /TrayIcon\s*:?\s*=/;
+							let pos = text.search(reg);
+							if (pos >= 0) {
+								editor.edit((builder) => {
+									let position = editor.document.positionAt(pos);
+									let line = editor.document.lineAt(position.line);
+									let endPosition = line.range.end;
+									let icoPos = line.text.indexOf('.ico', line.text.search(reg));
+									if (icoPos >= 0)
+										endPosition = new vscode.Position(line.lineNumber, icoPos + 4); //line.range.end.translate(0, -(line.range.end.character - icoPos+4));
+									let range: vscode.Range = new vscode.Range(position, endPosition);
+									let statementLine = editor.document.getText(range);
+									if (statementLine.includes(':=')) {
+										endPosition = new vscode.Position(endPosition.line, endPosition.character + 1);
+										range = new vscode.Range(position, endPosition);
+										builder.replace(range, `TrayIcon := "${selPath}"`);
+									}
+									else
+										builder.replace(range, 'TrayIcon = ' + selPath);
+									scriptCollection.setCurrentTrayIcon(selPath);
+								});
+							}
+							else
+								editor.insertSnippet(new vscode.SnippetString(
+									`TrayIcon = \${1:${selPath}}\nIf (FileExist(TrayIcon)) {\n\tMenu, Tray, Icon, TrayIcon\n}\n$0`
+								)).then((value) => {
+									if (value)
+										scriptCollection.setCurrentTrayIcon(selPath);
+								});
+						}
+					});
+				}
+			} catch (err) {
+				console.log(err);
+				vscode.window.showErrorMessage("An error has occured while setting the script's tray icon: " + err.message);
+			}
+		}),
+
+		vscode.commands.registerCommand(COMMAND_IDS.SET_ICON, () => {
+			try {
+				if (vscode.window.activeTextEditor) {
+					const options: vscode.OpenDialogOptions = {
 						openLabel: 'Select the icon',
 						canSelectMany: false,
 						filters: {
 							'icon': ['ico']
 						}
 					};
-					if (cfg.executablePath)
-						options.defaultUri = vscode.Uri.file(path.dirname(cfg.executablePath));
+
+					if (scriptCollection.getCurrentIcon())
+						options.defaultUri = vscode.Uri.file(path.dirname(scriptCollection.getCurrentIcon()));
+					else if (scriptCollection.getCurrentScriptFilePath())
+						options.defaultUri = vscode.Uri.file(path.dirname(scriptCollection.getCurrentScriptFilePath()));
 					vscode.window.showOpenDialog(options).then(fileUri => {
 						if (vscode.window.activeTextEditor && fileUri) {
-							scriptCollection.setCurrentTrayIcon(fileUri[0].fsPath);
+							scriptCollection.setCurrentIcon(fileUri[0].fsPath);
 						}
 					});
 				}
@@ -233,7 +293,9 @@ export function activate(context: vscode.ExtensionContext) {
 				if (vscode.window.activeTextEditor) {
 					const options: vscode.InputBoxOptions = { value: scriptCollection.getCurrentScriptArguments(), valueSelection: undefined };
 					vscode.window.showInputBox(options).then(value => {
-						scriptCollection.setCurrentTrayIcon(value || '');
+						scriptCollection.setCurrentScriptArguments(value || '');
+						if(cfg.run_on_args)
+							vscode.commands.executeCommand(COMMAND_IDS.RUN);
 					});
 				}
 			} catch (err) {
@@ -245,6 +307,8 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(COMMAND_IDS.REMOVE_METADATA, () => {
 			scriptCollection.clear();
 		}),
+
+
 
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.REFRESH, (element: Script) => {
 			treeDataProvider.refresh();

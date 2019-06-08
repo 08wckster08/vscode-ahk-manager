@@ -112,6 +112,31 @@ export class ScriptMetaDataCollection {
         return this.current.compiledDestination;
     }
 
+    /**
+ * getCurrentDestination
+ */
+    public getCurrentIcon(): string {
+        if (!this.current)
+            throw new Error("Current is null...");
+        return this.current.iconPath;
+    }
+
+    public setCurrentIcon(fsPath: string) {
+        if (this.current) {
+            this.current.iconPath = fsPath;
+            this.saveScriptMetaData();
+        }
+    }
+
+    /**
+ * getCurrentDestination
+ */
+    public getCurrentTrayIcon(): string {
+        if (!this.current)
+            throw new Error("Current is null...");
+        return this.current.trayIconPath;
+    }
+
     public setCurrentTrayIcon(fsPath: string) {
         if (this.current) {
             this.current.trayIconPath = fsPath;
@@ -119,14 +144,17 @@ export class ScriptMetaDataCollection {
         }
     }
 
+
     /**
      * getCurrentDestination
      */
-    public getCurrentTrayIcon(): string {
+    public getCurrentScriptFilePath(): string {
         if (!this.current)
             throw new Error("Current is null...");
-        return this.current.trayIconPath;
+        return this.current.scripFilePath;
     }
+
+
 
     public setCurrentScriptArguments(args: string) {
         if (this.current) {
@@ -164,10 +192,11 @@ export class ScriptMetaDataCollection {
 export class ScriptMetaData {
     public compiledDestination: string;
     public scriptArguments: string;
+    public iconPath: string;
     public trayIconPath: string;
     public constructor(public scripFilePath: string) {
         this.compiledDestination = this.scripFilePath.replace('.ahk', '.exe');
-        this.trayIconPath = this.scripFilePath.replace('.ahk', '.ico');
+        this.trayIconPath = this.iconPath = this.scripFilePath.replace('.ahk', '.ico');
         this.scriptArguments = '';
     }
 }

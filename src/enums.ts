@@ -8,6 +8,7 @@ export const COMMAND_IDS: any = {
 	KILL: "ahk.kill",
 	SPY: "ahk.spy",
 	DOCS: "ahk.docs",
+	SET_ICON: "ahk.set-icon",
 	SET_TRAY_ICON: "ahk.set-tray-icon",
 	SET_SCRIPT_ARGS: "ahk.set-script-arguments",
 	SWITCH: "ahk.temporary-switch-executable",
@@ -37,7 +38,8 @@ export const SETTINGS_KEYS: any = {
 	RunOnSave: "ahk.onSave.run",
 	OnSearchQueryTemplate: "ahk.onSearch.queryTemplate",
 	OnSearchTargetBrowser: "ahk.onSearch.targetBrowser",
-	OpenScriptFoldersInNewInstance: "ahk.scriptFolders.openInNewInstance"
+	OpenScriptFoldersInNewInstance: "ahk.scriptFolders.openInNewInstance",
+	RunOnArgs: 'ahk.onArgs.run'
 };
 
 export const DEFAULT_HEADER_SNIPPET_NAME = "Default Sublime Header";
