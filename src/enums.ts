@@ -1,3 +1,5 @@
+export const EXTENSION_NAME: string = 'vscode-ahk-manager';
+
 export const COMMAND_IDS: any = {
 	COMPILE: "ahk.compile",
 	COMPILE_AS: "ahk.compile-as",

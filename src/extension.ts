@@ -9,13 +9,14 @@ import * as child_process from 'child_process';
 import * as net from 'net';
 import * as panic from './panic';
 import { checkConnection } from './connectivity';
-import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH } from './enums';
+import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH, EXTENSION_NAME } from './enums';
 import { ScriptManagerProvider, Script } from './script-manager-provider';
 import { cfg } from './configuration';
+import { scriptCollection } from './script-meta-data-collection';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	console.log(`${cfg.appName} is ready : let's script something awesome !`);
+	console.log(`${EXTENSION_NAME} is ready : let's script something awesome !`);
 
 	let runned_scripts: string[] = new Array();
 	let compiled_scripts: string[] = new Array();
@@ -63,7 +64,6 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 				if (cfg.run_on_save && runned_scripts.includes(e.uri.fsPath))
 					vscode.commands.executeCommand(COMMAND_IDS.RUN);
-				// setTimeout(() => vscode.commands.executeCommand(COMMAND_IDS.RUN), compile_on_save ? 2000 : 1); // the timer delays the RUN command after the KILL above
 			}, 1000);
 		}),
 
@@ -153,7 +153,7 @@ export function activate(context: vscode.ExtensionContext) {
 					let iconPath = scriptFilePath.replace(".ahk", ".ico");
 					iconPath = fs.existsSync(iconPath) ? "/icon " + cfg.pathify(iconPath) : "";
 
-					let destination = cfg.overriddenCompiledDestination ? cfg.overriddenCompiledDestination : scriptFilePath.replace('.ahk', '.exe');
+					let destination = scriptCollection.getCurrentDestination();
 					launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), "/out", cfg.pathify(destination), iconPath);
 					// else
 					// 	launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), iconPath);
@@ -186,8 +186,9 @@ export function activate(context: vscode.ExtensionContext) {
 					if (cfg.executablePath)
 						options.defaultUri = vscode.Uri.file(path.dirname(cfg.executablePath));
 					vscode.window.showSaveDialog(options).then(fileUri => {
-						if (vscode.window.activeTextEditor && cfg.compilerPath && fileUri && fileUri) {
-							cfg.overriddenCompiledDestination = cfg.pathify(fileUri.fsPath);
+						if (vscode.window.activeTextEditor && cfg.compilerPath && fileUri) {
+							scriptCollection.setCurrentDestination(fileUri.fsPath);
+							// cfg.overriddenCompiledDestination = cfg.pathify(fileUri.fsPath);
 							vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
 						}
 					});
@@ -517,7 +518,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		}));
 	*/
-
 }
 
-export function deactivate() { }
+export function deactivate() {
+}

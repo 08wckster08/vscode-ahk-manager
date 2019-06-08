@@ -1,13 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import * as fs from "fs";
 import { SETTINGS_KEYS, DEFAULT_HEADER_SNIPPET_NAME } from './enums';
-
-export class ScriptMetaData {
-    public constructor(scripFilePath: string, compiledDestination: string, scripts_arguments: string) {
-
-    }
-}
+import { scriptCollection } from './script-meta-data-collection';
 
 export class Configuration {
     public executablePath: string = "";
@@ -28,21 +22,19 @@ export class Configuration {
     private initializeWithHeaderSnippet: boolean | undefined;
     private headerSnippetName: string | undefined;
 
-    public scriptMetaData: ScriptMetaData[] = new Array();
-    private manifest: any = {};
-
-    public readonly metaDataFilePath: string;
-    public appName = 'ahk';
-    constructor() {
-        try {
-            this.manifest = JSON.parse(fs.readFileSync(path.join(__filename, '..', '..', 'package.json')).toString());
-            this.appName = this.manifest.name;
-
-        } catch (err) {
-            vscode.window.showErrorMessage('Unable to load the manifest... ' + err);
-        }
-        this.metaDataFilePath = path.join(process.env.APPDATA || 'C:/', this.appName, 'script-meta-data.json');
-    }
+    // private manifest: any = {};
+    // public get appName(): string {
+    //     let name: string = 'ahk';
+    //     try {
+    //         if (!this.manifest) {
+    //             this.manifest = JSON.parse(fs.readFileSync(path.join(__filename, '..', '..', 'package.json')).toString());
+    //             name = this.manifest.name;
+    //         }
+    //     } catch (err) {
+    //         vscode.window.showErrorMessage('Unable to load the manifest... ' + err);
+    //     }
+    //     return name;
+    // }
 
     /**
      * parse
@@ -65,39 +57,12 @@ export class Configuration {
             this.on_search_query_template = configuration.get(SETTINGS_KEYS.OnSearchQueryTemplate) || "";
             this.open_script_folders_in_new_instance = configuration.get(SETTINGS_KEYS.OpenScriptFoldersInNewInstance, true);
 
-            this.loadScriptMetaData();
+            if (uri)
+                scriptCollection.setCurrent(uri);
         } catch (err) {
             console.error(err);
             vscode.window.showErrorMessage(err.message);
         }
-    }
-
-    /**
-     * saveScriptMetaData
-     */
-    public saveScriptMetaData() {
-
-        var data = "New File Contents";
-
-        fs.writeFile("temp.txt", data, (err) => {
-            if (err) console.log(err);
-            console.log("Successfully Written to File.");
-        });
-    }
-
-    private loadScriptMetaData() {
-        fs.readFile(this.metaDataFilePath, "utf-8", (err, data) => {
-            try {
-                if (err) {
-                    vscode.window.showErrorMessage('Unable to load scripts\' metadata ' + err);
-                }
-                else {
-                    this.scriptMetaData = <ScriptMetaData[]>JSON.parse(data);
-                }
-            } catch (ex) {
-                vscode.window.showErrorMessage('Unable to load scripts\' metadata ' + ex);
-            }
-        });
     }
 
     public initializeEmptyWithHeaderSnippetIfNeeded(len: number) {
@@ -107,8 +72,6 @@ export class Configuration {
     }
 
     public setExecutablePaths(filePath: string) {
-        // if (treeDataProvider)`// TODO import cfg from treedataprovider
-        //     treeDataProvider.executablePath = pathify(filePath);
         this.winSpyPath = this.pathify(path.join(path.dirname(filePath), 'WindowSpy.ahk'));
         this.docsPath = this.pathify(path.join(path.dirname(filePath), 'AutoHotkey.chm'));
         this.compilerPath = this.pathify(path.join(path.dirname(filePath), 'Compiler', 'Ahk2Exe.exe'));
