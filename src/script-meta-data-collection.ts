@@ -31,13 +31,29 @@ export class ScriptMetaDataCollection {
     public saveScriptMetaData() {
         var data = JSON.stringify(this.collection);
         if (data !== this.lastWrittenData) {
-            fs.writeFile(this.metaDataFilePath, data, (err) => {// TODO NOEOENT ?
-                if (err)
-                    vscode.window.showErrorMessage('Unable to save the scripts\' metadata. ' + err);
-                console.log("Scripts metadata saved");
-                this.lastWrittenData = data;
-            });
+            if (this.makeSureDirExists())
+                fs.writeFile(this.metaDataFilePath, data, (err) => {// TODO NOEOENT ?
+                    if (err)
+                        vscode.window.showErrorMessage('Unable to save the scripts\' metadata. ' + err);
+                    console.log("Scripts metadata saved");
+                    this.lastWrittenData = data;
+                });
         }
+    }
+
+    private makeSureDirExists(): boolean {
+        if (this.metaDataFilePath)
+            try {
+                const dir = path.dirname(this.metaDataFilePath);
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir);
+                }
+                return true;
+            }
+            catch (err) {
+                vscode.window.showErrorMessage('Unable to create a directory on path `' + this.metaDataFilePath + '`: ' + err);
+            }
+        return false;
     }
 
     private fromFile(): Promise<string> {
@@ -111,15 +127,48 @@ export class ScriptMetaDataCollection {
             throw new Error("Current is null...");
         return this.current.trayIconPath;
     }
+
+    public setCurrentScriptArguments(args: string) {
+        if (this.current) {
+            this.current.scriptArguments = args;
+            this.saveScriptMetaData();
+        }
+    }
+
+    /**
+     * getCurrentDestination
+     */
+    public getCurrentScriptArguments(): string {
+        if (!this.current)
+            throw new Error("Current is null...");
+        return this.current.scriptArguments;
+    }
+
+    public clear() {
+
+        if (this.current) {
+            const filePath = this.current.scripFilePath;
+            this.collection = new Array();
+            this.setCurrent(vscode.Uri.parse(filePath));
+        }
+        else
+            this.collection = new Array();
+
+        fs.unlink(this.metaDataFilePath, (err) => {
+            if (err)
+                vscode.window.showErrorMessage('Unable to remove the scripts\' metadata file: ' + err);
+        });
+    }
 }
 
 export class ScriptMetaData {
     public compiledDestination: string;
-    public scriptArguments: string | undefined;
+    public scriptArguments: string;
     public trayIconPath: string;
     public constructor(public scripFilePath: string) {
         this.compiledDestination = this.scripFilePath.replace('.ahk', '.exe');
         this.trayIconPath = this.scripFilePath.replace('.ahk', '.ico');
+        this.scriptArguments = '';
     }
 }
 

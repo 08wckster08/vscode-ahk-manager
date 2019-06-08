@@ -92,6 +92,11 @@
 				"enablement": "languageId == ahk"
 			},
 			{
+				"command": "ahk.set-script-arguments",
+				"title": "Set the script arguments",
+				"enablement": "languageId == ahk"
+			},
+			{
 				"command": "ahk.scripts-manager.refresh",
 				"title": "Refresh",
 				"icon": {
@@ -320,6 +325,11 @@
 			{
 				"command": "ahk.set-tray-icon",
 				"key": "ctrl+a ctrl+i",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.set-script-arguments",
+				"key": "ctrl+a ctrl+g",
 				"when": "resourceLangId == ahk && editorTextFocus"
 			},
 			{

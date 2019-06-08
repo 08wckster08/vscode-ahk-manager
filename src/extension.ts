@@ -130,7 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
 				if (!vscode.window.activeTextEditor)
 					return;
 				let scriptFileName = path.basename(vscode.window.activeTextEditor.document.uri.fsPath);
-				let compiledPath = cfg.overriddenCompiledDestination;
+				let compiledPath = scriptCollection.getCurrentDestination();
 				if (!compiledPath)
 					compiledPath = scriptFileName.replace(path.extname(scriptFileName), ".exe");
 				else
@@ -154,18 +154,18 @@ export function activate(context: vscode.ExtensionContext) {
 					iconPath = fs.existsSync(iconPath) ? "/icon " + cfg.pathify(iconPath) : "";
 
 					let destination = scriptCollection.getCurrentDestination();
-					launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), "/out", cfg.pathify(destination), iconPath);
-					// else
-					// 	launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), iconPath);
-
-					vscode.window.showInformationMessage(`The script has been compiled!\nYou can find it on \`${destination}\``, LAUNCH, REVEAL_FILE_IN_OS).then((res) => {
-						switch (res) {
-							case LAUNCH:
-								vscode.commands.executeCommand(COMMAND_IDS.RUN);
-								break;
-							case REVEAL_FILE_IN_OS:
-								vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, vscode.Uri.file(destination));
-								break;
+					launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), "/out", cfg.pathify(destination), iconPath).then((success) => {
+						if (success) {
+							vscode.window.showInformationMessage(`The script has been compiled!\nYou can find it on \`${destination}\``, LAUNCH, REVEAL_FILE_IN_OS).then((res) => {
+								switch (res) {
+									case LAUNCH:
+										vscode.commands.executeCommand(COMMAND_IDS.RUN);
+										break;
+									case REVEAL_FILE_IN_OS:
+										vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, vscode.Uri.file(destination));
+										break;
+								}
+							});
 						}
 					});
 				}
@@ -224,11 +224,26 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			} catch (err) {
 				console.log(err);
-				vscode.window.showErrorMessage("An error has occured while compiling the script: " + err.message);
+				vscode.window.showErrorMessage("An error has occured while setting the script's tray icon: " + err.message);
 			}
 		}),
+
+		vscode.commands.registerCommand(COMMAND_IDS.SET_SCRIPT_ARGS, () => {
+			try {
+				if (vscode.window.activeTextEditor) {
+					const options: vscode.InputBoxOptions = { value: scriptCollection.getCurrentScriptArguments(), valueSelection: undefined };
+					vscode.window.showInputBox(options).then(value => {
+						scriptCollection.setCurrentTrayIcon(value || '');
+					});
+				}
+			} catch (err) {
+				console.log(err);
+				vscode.window.showErrorMessage("An error has occured while setting the script's arguments: " + err.message);
+			}
+		}),
+
 		vscode.commands.registerCommand(COMMAND_IDS.REMOVE_METADATA, () => {
-			// todo remove metadata
+			scriptCollection.clear();
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.REFRESH, (element: Script) => {
@@ -349,23 +364,31 @@ export function activate(context: vscode.ExtensionContext) {
 		return buffer;
 	}
 
-	function launchProcess(name: string, quiet: boolean, ...args: string[]) {
-		try {
-			let command = name.concat(' ', args.join(' '));
-			child_process.exec(command, function callback(error: any, stdout: any, stderr: any) {
-				if (error) {
-					if (quiet)
-						console.log('error: ' + error);
+	function launchProcess(name: string, quiet: boolean, ...args: string[]): Promise<boolean> {
+		let p: Promise<boolean> = new Promise((r, c) => {
+			try {
+				let command = name.concat(' ', args.join(' '));
+				child_process.exec(command, function callback(error: any, stdout: any, stderr: any) {
+					if (error) {
+						if (quiet) {
+							console.log('error: ' + error);
+						}
+						else
+							vscode.window.showErrorMessage("An error has occured while launching the executable: " + error);
+						c(error);
+					}
 					else
-						vscode.window.showErrorMessage("An error has occured while launching the executable: " + error);
-				}
-			});
-		} catch (err) {
-			if (quiet)
-				console.log(err);
-			else
-				vscode.window.showErrorMessage("unable to launch the executable: " + err.message);
-		}
+						r(true);
+				});
+			} catch (err) {
+				if (quiet)
+					console.log(err);
+				else
+					vscode.window.showErrorMessage("unable to launch the executable: " + err.message);
+				c(err);
+			}
+		});
+		return p;
 	}
 
 

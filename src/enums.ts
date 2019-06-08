@@ -8,7 +8,8 @@ export const COMMAND_IDS: any = {
 	KILL: "ahk.kill",
 	SPY: "ahk.spy",
 	DOCS: "ahk.docs",
-	SET_TRAY_ICON:"ahk.set-tray-icon",
+	SET_TRAY_ICON: "ahk.set-tray-icon",
+	SET_SCRIPT_ARGS: "ahk.set-script-arguments",
 	SWITCH: "ahk.temporary-switch-executable",
 	REMOVE_METADATA: "ahk.remove-script-metadata",
 

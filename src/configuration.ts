@@ -16,7 +16,7 @@ export class Configuration {
     public compile_on_save: boolean = false;
     public run_on_save: boolean = false;
 
-    public overriddenCompiledDestination: string | undefined;
+    // public overriddenCompiledDestination: string | undefined;
     public is_overridden = false;
 
     private initializeWithHeaderSnippet: boolean | undefined;
