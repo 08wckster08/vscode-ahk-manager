@@ -55,6 +55,13 @@
 				"enablement": "resourceLangId == ahk"
 			},
 			{
+				"command": "ahk.run-compiled",
+				"title": "Run Compiled Script",
+				"category": "AHK",
+				"icon": "./media/run.svg",
+				"enablement": "resourceLangId == ahk"
+			},
+			{
 				"command": "ahk.kill",
 				"title": "Kill Exe/Script",
 				"category": "AHK",
@@ -317,6 +324,11 @@
 			{
 				"command": "ahk.run",
 				"key": "ctrl+a ctrl+r",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.run-compiled",
+				"key": "ctrl+a ctrl+shift+r",
 				"when": "resourceLangId == ahk && editorTextFocus"
 			},
 			{

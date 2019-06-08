@@ -4,6 +4,7 @@ export const COMMAND_IDS: any = {
 	COMPILE: "ahk.compile",
 	COMPILE_AS: "ahk.compile-as",
 	RUN: "ahk.run",
+	RUN_COMPILED: "ahk.run-compiled",
 	RUNBUFFERED: "ahk.run-buffer",
 	KILL: "ahk.kill",
 	SPY: "ahk.spy",

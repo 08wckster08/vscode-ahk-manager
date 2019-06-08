@@ -116,6 +116,13 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}),
 
+		vscode.commands.registerCommand(COMMAND_IDS.RUN_COMPILED, () => {
+			let compiled_path = scriptCollection.getCurrentDestination()
+			if (vscode.window.activeTextEditor &&  compiled_path && fs.existsSync(compiled_path)) {
+				launchProcess(cfg.pathify(compiled_path), false);
+			}
+		}),
+
 		vscode.commands.registerCommand(COMMAND_IDS.RUN, () => {
 			if (vscode.window.activeTextEditor && cfg.executablePath) {
 				const scriptFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
@@ -159,7 +166,7 @@ export function activate(context: vscode.ExtensionContext) {
 							vscode.window.showInformationMessage(`The script has been compiled!\nYou can find it on \`${destination}\``, LAUNCH, REVEAL_FILE_IN_OS).then((res) => {
 								switch (res) {
 									case LAUNCH:
-										vscode.commands.executeCommand(COMMAND_IDS.RUN);
+										vscode.commands.executeCommand(COMMAND_IDS.RUN_COMPILED);
 										break;
 									case REVEAL_FILE_IN_OS:
 										vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, vscode.Uri.file(destination));

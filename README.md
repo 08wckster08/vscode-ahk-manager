@@ -7,14 +7,28 @@ its the Yin of the [AutoHotkey extension](https://github.com/stef-levesque/vscod
 
 I like to write AutoHotkey scripts, this language is amazing, but I often found myself go back and forth between writing an app, looking for it in my messy tray, reloading it, testing it, grab the browser and tuning it again. So I decided to improve my tools and add the capabiliy to just reload a script through a command and/or a button.
 
+This app manages for every script Meta-data, that will persist among vscode startups :
+
+|Metadata|Default value|Command|
+|---------------------|----------------|----------------------|
+| Compiled Destination| scriptname.exe | `ahk.compile`        |
+| Script Arguments    | n/d            | `ahk.set-script-args`|
+| Icon Path           | scriptname.ico | `ahk.set-icon`       |
+| Tray Icon Path      | n/d            | `ahk.set-tray-icon`  |
+
 ## Features
 
-With this extension you can cut off the development time using handy commands.
+With this extension you can cut off the development time using handy commands:
 
+* **Run** the script without compile it
+* **Compile** in the script folder by default
+  * Set Compile destination on the fly and remeber it among startups
+  *
 * If you put an icon with the same name of the `script.ahk` (so `script.ico`) the icon will be used by the compiler.
+  * Otherwise with the command `ahk.set-icon` an icon will be picked up instead of the default
 * Using `Ctrl`+`A` `Ctrl`+`D` you can consult the docs
-  * if you have a selection you could search about it on google.
-* [Sperimental] an experimental formatter has been added so you could format a little bit the code (use a simple ahk script)
+  * if you have a selection you will be automatically redirect on google.
+* [Sperimental] an experimental formatter has been added so you could format a little bit the code (it use a [simple ahk script](https://autohotkey.com/board/topic/55766-script-auto-formatter-very-basic-beginner-script/))
 * Set Script's command line arguments per script
 
 > WARNING : This app could cause serious addictions !!! 😜
@@ -25,6 +39,9 @@ With this extension you can cut off the development time using handy commands.
 * The powerful [AutoHotkey](https://www.autohotkey.com/)
 * A deep understanding of the marvellous things you could do with the ahk language
 * [AutoHotkey extension](https://github.com/stef-levesque/vscode-autohotkey)... yeah it's not a requirement: it's a must ! 😉
+  * [AutoHotkey Plus](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-autohotkey-plus) have an intresting formatter
+    * You can disable mine thorugh `ahk.format` = false
+* You'll have to set the `ahk.executablePath` the first time to be ready to work with this system
 
 ## Extension Settings
 
@@ -50,12 +67,14 @@ This extension contributes the following settings:
 ## Further Updates
 
 [X] running scripts treelist
-    [] improve icons
+    [X] improve icons
 [] debugger
 [X] if editorHasSelection search on internet for it when `Ctrl+A Ctrl+D`
-[] saved compiled destinations for scripts (maybe in settings.)
+[X] saved compiled destinations for scripts (maybe in settings.)
 [] improve icons
 [] improve code
+[] comments
+[] remember launched scripts from history so you could also launch them from an ahk.manager secondary treeview (like extension treeviews)
 
 ## Release Notes
 
