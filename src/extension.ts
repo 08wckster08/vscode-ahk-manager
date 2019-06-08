@@ -118,8 +118,16 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUN_COMPILED, () => {
 			let compiled_path = scriptCollection.getCurrentDestination()
-			if (vscode.window.activeTextEditor &&  compiled_path && fs.existsSync(compiled_path)) {
-				launchProcess(cfg.pathify(compiled_path), false);
+			if (vscode.window.activeTextEditor && compiled_path) {
+				if (!fs.existsSync(compiled_path)) {
+					vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
+					setTimeout(() => {
+						if (fs.existsSync(compiled_path))
+							launchProcess(cfg.pathify(compiled_path), false);
+					}, 3000);
+				}
+				else
+					launchProcess(cfg.pathify(compiled_path), false, scriptCollection.getCurrentScriptArguments());
 			}
 		}),
 
