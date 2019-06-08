@@ -201,11 +201,11 @@ export class ScriptMetaDataCollection {
             }
             else
                 this.collection = new Array();
-
-            fs.unlink(this.metaDataFilePath, (err) => {
-                if (err)
-                    vscode.window.showErrorMessage('Unable to remove the scripts\' metadata file: ' + err);
-            });
+            if (fs.existsSync(this.metaDataFilePath))
+                fs.unlink(this.metaDataFilePath, (err) => {
+                    if (err)
+                        vscode.window.showErrorMessage('Unable to remove the scripts\' metadata file: ' + err);
+                });
         }
         else
             vscode.window.showWarningMessage('Script Metadata load is in progress...')
