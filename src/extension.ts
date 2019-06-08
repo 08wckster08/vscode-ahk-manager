@@ -317,8 +317,6 @@ export function activate(context: vscode.ExtensionContext) {
 			scriptCollection.clear();
 		}),
 
-
-
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.REFRESH, (element: Script) => {
 			treeDataProvider.refresh();
 		}),

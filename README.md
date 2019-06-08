@@ -1,87 +1,97 @@
-# vscode-ahk-manager README
+# vscode-ahk-manager
 
 Welcome to my third Extension !
 
 Inspired by the [Sublime plug-In](https://github.com/ahkscript/SublimeAutoHotkey),
-its the Yin of the [AutoHotkey extension](https://github.com/stef-levesque/vscode-autohotkey).
+this is the Yin of the [AutoHotkey extension](https://github.com/stef-levesque/vscode-autohotkey).
 
-I like to write AutoHotkey scripts, this language is amazing, but I often found myself go back and forth between writing an app, looking for it in my messy tray, reloading it, testing it, grab the browser and tuning it again. So I decided to improve my tools and add the capabiliy to just reload a script through a command and/or a button.
+_I like to write AutoHotkey scripts, this language is amazing, but I often found myself go back and forth between writing an app, looking for it in my messy tray, reloading it, testing it, grab the browser and tuning it again. So I decided to improve my tools and add the capabiliy to just reload a script through a command and/or a button._
 
-This app manages for every script Meta-data, that will persist among vscode startups :
+> WARNING : This extension could cause serious addictions !!! 😜
 
-|Metadata|Default value|Command|
-|---------------------|----------------|----------------------|
-| Compiled Destination| scriptname.exe | `ahk.compile`        |
-| Script Arguments    | n/d            | `ahk.set-script-args`|
-| Icon Path           | scriptname.ico | `ahk.set-icon`       |
-| Tray Icon Path      | n/d            | `ahk.set-tray-icon`  |
+This extension manages for every script Meta-data, that will persist among vscode startups :
+
+| Metadata             | Default value  | Command               |
+| -------------------- | -------------- | --------------------- |
+| Compiled Destination | scriptname.exe | `ahk.compile`         |
+| Script Arguments     | n/d            | `ahk.set-script-args` |
+| Icon Path            | scriptname.ico | `ahk.set-icon`        |
+| Tray Icon Path       | n/d            | `ahk.set-tray-icon`   |
 
 ## Features
 
 With this extension you can cut off the development time using handy commands:
 
 * **Run** the script without compile it
-* **Compile** in the script folder by default
-  * Set Compile destination on the fly and remeber it among startups
-  *
-* If you put an icon with the same name of the `script.ahk` (so `script.ico`) the icon will be used by the compiler.
+  * Set command line arguments for scripts, with ("`Ctrl`+`A` `Ctrl`+`G`") (they will be remembered among startups)
+* **Compile** in the script's folder by default
+  * Change compile destination on the fly with **Compile As** (it will be remembered among startups)
+  * **Run Compiled** scripts
+* **Kill** the script and the compiled exe with ease
+* Tired of typing ? just use buttons 😉
+* Just want to test simple script parts ? select some text and **Run Buffered**
+* If you put an icon with the same name of the `script.ahk` (so named `script.ico`) the icon will be used by the compiler.
   * Otherwise with the command `ahk.set-icon` an icon will be picked up instead of the default
-* Using `Ctrl`+`A` `Ctrl`+`D` you can consult the docs
+* Using "`Ctrl`+`A` `Ctrl`+`D`" you can consult the docs
   * if you have a selection you will be automatically redirect on google.
-* [Sperimental] an experimental formatter has been added so you could format a little bit the code (it use a [simple ahk script](https://autohotkey.com/board/topic/55766-script-auto-formatter-very-basic-beginner-script/))
-* Set Script's command line arguments per script
-
-> WARNING : This app could cause serious addictions !!! 😜
+* You can launch the ahk spy window with "`Ctrl`+`A` `Ctrl`+`S`"
+* Chose an icon with "`Ctrl`+`A` `Ctrl+I`"
+* Insert a tray icon with "`Ctrl`+`A` `Ctrl+T`"
+  * subsequent call will update the TrayIcon value
+* You can temporary switch executable on the fly with the `ahk.temporary-switch-executable` command
+* Initialize an empty ahk script with the default snippet
+  * Or define another one.
+* [Experimental] an experimental formatter has been added so you could format a little bit the code (it use this [simple ahk script](https://autohotkey.com/board/topic/55766-script-auto-formatter-very-basic-beginner-script/))
+* With `Ctrl`+`Shift`+`A` grab the script manager viewer and check ahk scripts' states
+  * You can also interact with them :
+    * Pause/Unpause
+    * Suspend/Unsuspend
+    * Kill
+    * Click on name for reveal it in explorer
+    * Click on (holding `Ctrl`) for open the containing folder in a new VSCode instance
 
 ## Requirements
 
-* The almighty vs-code
+* The almighty [VS Code](https://code.visualstudio.com/)
 * The powerful [AutoHotkey](https://www.autohotkey.com/)
 * A deep understanding of the marvellous things you could do with the ahk language
 * [AutoHotkey extension](https://github.com/stef-levesque/vscode-autohotkey)... yeah it's not a requirement: it's a must ! 😉
   * [AutoHotkey Plus](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-autohotkey-plus) have an intresting formatter
-    * You can disable mine thorugh `ahk.format` = false
-* You'll have to set the `ahk.executablePath` the first time to be ready to work with this system
+    * You can disable mine through *`ahk.format` = false*
 
 ## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
 
 This extension contributes the following settings:
 
 * `ahk.onSearch.targetBrowser`: choose the right browser for performing your searches.
   * see [open](https://github.com/sindresorhus/open) for the right syntax (this is the **option** object)
 * `ahk.onSearch.queryTemplate`: *with better question you'll get better answers*.
+* `ahk.onSave.compile` and `ahk.onSave.run` could be helpfull
+  * `ahk.onArgs.run` allow script to run as soon as you specify cmd line arguments (`Ctrl`+`A` `Ctrl`+`G`)
+* `ahk.onEmpty.overrideHeaderSnippet` to override the snippet used for initializing empty ahk files
+* `ahk.scriptFolders.openInNewInstance` specify, when `Ctrl`+`Clic` on a treeItem, the behaviour to open the script/exe's folder in VSCode
+* `ahk.format.enabled` for disabling the formatter
 
-> Note: maybe you'll have to set the `executableFullPath` in order to make this extension working with AHK.
+> Note: maybe you'll have to set the `executableFullPath` setting in order to make this extension working with AHK.
 
 ## Known Issues
 
-* Calling out known issues can help limit users opening duplicate issues against your extension.
-* Icons aren't great (you could hide buttons if you don't like them, you'll still able to invoke commands through the command palette)
-* I will forget the compiled destinations among vscode instances
-* Side effect of the Shortcut : the select all don't get triggered, so I added a workaround : `Ctrl+A Ctrl+A` for selecting all text in .ahk files ... could still be awkward... you could think about better shorcut combinations and adjust them manually for getting the `Ctrl+A` working normally again.
+* Icons aren't great (you could hide buttons if you don't like them, you'll still be able to invoke commands through the command palette)
+* Side effect of the Shortcuts starting with `Ctrl`+`A` : the _select all_ don't get triggered, so I added this workaround : `Ctrl+A Ctrl+A` for selecting all text in .ahk files ... could still be awkward... you could think about better shorcut combinations and adjust them manually for getting the `Ctrl+A` working normally again.
 
 ## Further Updates
 
-[X] running scripts treelist
-    [X] improve icons
-[] debugger
-[X] if editorHasSelection search on internet for it when `Ctrl+A Ctrl+D`
-[X] saved compiled destinations for scripts (maybe in settings.)
-[] improve icons
-[] improve code
-[] comments
-[] remember launched scripts from history so you could also launch them from an ahk.manager secondary treeview (like extension treeviews)
+* [ ] debugger
+* [ ] improve icons
+* [ ] improve code
+  * [ ] comments
+* [ ] formatter
+* [ ] remember launched scripts from history so you could also launch them from an ahk.manager secondary treeview (like extension treeviews)
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
 
-Initial release of this extension
+Initial release of this extension.
 
-**Enjoy!**
+May you **Enjoy** with this extension and craft amazing scripts with it !

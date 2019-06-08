@@ -109,6 +109,11 @@
 				"enablement": "resourceLangId == ahk"
 			},
 			{
+				"command": "ahk.remove-script-metadata",
+				"title": "Clear scripts Meta-data",
+				"enablement": "resourceLangId == ahk"
+			},
+			{
 				"command": "ahk.scripts-manager.refresh",
 				"title": "Refresh",
 				"icon": {
@@ -146,11 +151,6 @@
 				"title": "Kill",
 				"icon": "./media/kill.svg",
 				"enablement": "view == ahk.scripts-manager"
-			},
-			{
-				"command": "ahk.remove-script-metadata",
-				"title": "Forget scripts metadata",
-				"enablement": "languageId == ahk"
 			}
 		],
 		"snippets": [{
