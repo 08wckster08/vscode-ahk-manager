@@ -96,21 +96,25 @@
 			{
 				"command": "ahk.set-tray-icon",
 				"title": "Set the script's tray icon",
+				"category": "AHK",
 				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.set-icon",
 				"title": "Set the script's icon",
+				"category": "AHK",
 				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.set-script-arguments",
 				"title": "Set the script arguments",
+				"category": "AHK",
 				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.remove-script-metadata",
 				"title": "Clear scripts Meta-data",
+				"category": "AHK",
 				"enablement": "resourceLangId == ahk"
 			},
 			{
