@@ -8,6 +8,8 @@ export class ScriptMetaDataCollection {
     private lastWrittenData: string = '';
     private collection: ScriptMetaData[] = new Array();
 
+    private isCollectionLoaded: boolean = false;
+    private delayedSetCurrentUri: vscode.Uri | undefined;
     public current: ScriptMetaData | undefined;
 
     constructor() {
@@ -19,10 +21,22 @@ export class ScriptMetaDataCollection {
      * loadScriptMetaData
      */
     public loadScriptMetaData() {
-        this.fromFile().then((data) => {
-            this.lastWrittenData = data;
-            this.collection = data.length ? <ScriptMetaData[]>JSON.parse(data) : new Array();
-        }).catch((ex) => vscode.window.showErrorMessage('Unable to load scripts\' metadata ' + ex));
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Script Metadata loading ...",
+        }, (progress, token) => {
+            return this.fromFile().then((data) => {
+                progress.report({ message: 'file loaded' });
+                this.lastWrittenData = data;
+                this.collection = data.length ? <ScriptMetaData[]>JSON.parse(data) : new Array();
+                progress.report({ message: 'data parsed' });
+                this.isCollectionLoaded = true;
+                if (this.delayedSetCurrentUri) {
+                    this.setCurrent(this.delayedSetCurrentUri);
+                    progress.report({ message: 'all ready !' });
+                }
+            }).catch((ex) => vscode.window.showErrorMessage('Unable to load scripts\' metadata ' + ex));
+        });
     }
 
     /**
@@ -32,7 +46,7 @@ export class ScriptMetaDataCollection {
         var data = JSON.stringify(this.collection);
         if (data !== this.lastWrittenData) {
             if (this.makeSureDirExists())
-                fs.writeFile(this.metaDataFilePath, data, (err) => {// TODO NOEOENT ?
+                fs.writeFile(this.metaDataFilePath, data, (err) => {
                     if (err)
                         vscode.window.showErrorMessage('Unable to save the scripts\' metadata. ' + err);
                     console.log("Scripts metadata saved");
@@ -57,6 +71,7 @@ export class ScriptMetaDataCollection {
     }
 
     private fromFile(): Promise<string> {
+        this.isCollectionLoaded = false;
         let promise: Promise<string> = new Promise((r, c) => {
             if (fs.existsSync(this.metaDataFilePath))
                 fs.readFile(this.metaDataFilePath, "utf-8", (err, data) => {
@@ -80,16 +95,22 @@ export class ScriptMetaDataCollection {
      */
     public setCurrent(uri: vscode.Uri) {
         this.current = undefined;
-        for (let i = 0; i < this.collection.length; i++) {
-            const scriptMetaData = this.collection[i];
-            if (scriptMetaData.scripFilePath === uri.fsPath) {
-                this.current = scriptMetaData;
-                break;
+        if (this.isCollectionLoaded) {
+            for (let i = 0; i < this.collection.length; i++) {
+                const scriptMetaData = this.collection[i];
+                if (scriptMetaData.scripFilePath === uri.fsPath) {
+                    this.current = scriptMetaData;
+                    break;
+                }
+            }
+            if (!this.current) {
+                this.current = new ScriptMetaData(uri.fsPath);
+                this.collection.push(this.current);
             }
         }
-        if (!this.current) {
-            this.current = new ScriptMetaData(uri.fsPath);
-            this.collection.push(this.current);
+        else {
+            this.delayedSetCurrentUri = uri;
+            vscode.window.showWarningMessage('Script Metadata load is in progress...');
         }
     }
 
@@ -154,8 +175,6 @@ export class ScriptMetaDataCollection {
         return this.current.scripFilePath;
     }
 
-
-
     public setCurrentScriptArguments(args: string) {
         if (this.current) {
             this.current.scriptArguments = args;
@@ -173,19 +192,24 @@ export class ScriptMetaDataCollection {
     }
 
     public clear() {
+        if (this.isCollectionLoaded) {
 
-        if (this.current) {
-            const filePath = this.current.scripFilePath;
-            this.collection = new Array();
-            this.setCurrent(vscode.Uri.parse(filePath));
+            if (this.current) {
+                const filePath = this.current.scripFilePath;
+                this.collection = new Array();
+                this.setCurrent(vscode.Uri.parse(filePath));
+            }
+            else
+                this.collection = new Array();
+
+            fs.unlink(this.metaDataFilePath, (err) => {
+                if (err)
+                    vscode.window.showErrorMessage('Unable to remove the scripts\' metadata file: ' + err);
+            });
         }
         else
-            this.collection = new Array();
+            vscode.window.showWarningMessage('Script Metadata load is in progress...')
 
-        fs.unlink(this.metaDataFilePath, (err) => {
-            if (err)
-                vscode.window.showErrorMessage('Unable to remove the scripts\' metadata file: ' + err);
-        });
     }
 }
 

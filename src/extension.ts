@@ -293,9 +293,11 @@ export function activate(context: vscode.ExtensionContext) {
 				if (vscode.window.activeTextEditor) {
 					const options: vscode.InputBoxOptions = { value: scriptCollection.getCurrentScriptArguments(), valueSelection: undefined };
 					vscode.window.showInputBox(options).then(value => {
-						scriptCollection.setCurrentScriptArguments(value || '');
-						if(cfg.run_on_args)
-							vscode.commands.executeCommand(COMMAND_IDS.RUN);
+						if (value !== undefined) {
+							scriptCollection.setCurrentScriptArguments(value || '');
+							if (cfg.run_on_args)
+								vscode.commands.executeCommand(COMMAND_IDS.RUN);
+						}
 					});
 				}
 			} catch (err) {
