@@ -88,13 +88,18 @@
 			},
 			{
 				"command": "ahk.set-tray-icon",
-				"title": "Set the script tray icon",
-				"enablement": "languageId == ahk"
+				"title": "Set the script's tray icon",
+				"enablement": "resourceLangId == ahk"
+			},
+			{
+				"command": "ahk.set-icon",
+				"title": "Set the script's icon",
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.set-script-arguments",
 				"title": "Set the script arguments",
-				"enablement": "languageId == ahk"
+				"enablement": "resourceLangId == ahk"
 			},
 			{
 				"command": "ahk.scripts-manager.refresh",
@@ -193,6 +198,13 @@
 				"ahk.onSave.run": {
 					"title": "Run on Save",
 					"description": "Activate Run on Save (`Ctrl`+`S`)",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
+				},
+				"ahk.onArgs.run": {
+					"title": "Run on Argument changes",
+					"description": "Run as soon as command line arguments are set/changed (with `ahk.set-script-arguments`)",
 					"type": "boolean",
 					"default": false,
 					"scope": "resource"
@@ -324,6 +336,11 @@
 			},
 			{
 				"command": "ahk.set-tray-icon",
+				"key": "ctrl+a ctrl+t",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.set-icon",
 				"key": "ctrl+a ctrl+i",
 				"when": "resourceLangId == ahk && editorTextFocus"
 			},
