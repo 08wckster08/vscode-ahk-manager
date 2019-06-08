@@ -26,8 +26,8 @@ export function activate(context: vscode.ExtensionContext) {
 	let scriptViewer: vscode.TreeView<Script>;
 
 	cfg.parseConfiguration(vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk" ? vscode.window.activeTextEditor.document.uri : undefined);
-	if (vscode.window.activeTextEditor)
-		cfg.initializeEmptyWithHeaderSnippetIfNeeded(vscode.window.activeTextEditor.document.getText().length);
+	// if (vscode.window.activeTextEditor)
+	// 	cfg.initializeEmptyWithHeaderSnippetIfNeeded(vscode.window.activeTextEditor.document.getText().length);
 
 
 	treeDataProvider = new ScriptManagerProvider();
@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.window.onDidChangeActiveTextEditor(e => {
 			if (e && e.document.languageId === 'ahk') {
 				cfg.parseConfiguration(e.document.uri);
-				cfg.initializeEmptyWithHeaderSnippetIfNeeded(e.document.getText().length);
+				// cfg.initializeEmptyWithHeaderSnippetIfNeeded(e.document.getText().length);
 			}
 		}),
 
