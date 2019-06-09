@@ -2,14 +2,18 @@
 
 **Welcome** to my third [Extension](https://marketplace.visualstudio.com/items?itemName=Denis-net.vscode-ahk-manager) !
 
+> WARNING : This extension could cause serious addictions !!! 😜
+
 ![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager.gif)
 
 Inspired by the [Sublime plug-In](https://github.com/ahkscript/SublimeAutoHotkey),
 this is the Yin of the [AutoHotkey extension](https://github.com/stef-levesque/vscode-autohotkey) !
 
+## Why
+
 _I like to write AutoHotkey scripts, this language is amazing, but I often found myself go back and forth between writing an app, looking for it in my messy tray, reloading it, testing it, grab the browser and tuning it again. So I decided to improve my tools and add the capabiliy to just reload a script through a command and/or a button._
 
-> WARNING : This extension could cause serious addictions !!! 😜
+## Features
 
 This extension manages for every script Meta-data, that will persist among vscode startups :
 
@@ -19,8 +23,6 @@ This extension manages for every script Meta-data, that will persist among vscod
 | Script Arguments     | n/d            | `ahk.set-script-args` |
 | Icon Path            | scriptname.ico | `ahk.set-icon`        |
 | Tray Icon Path       | n/d            | `ahk.set-tray-icon`   |
-
-## Features
 
 With this extension you can cut off the development time using handy commands:
 
@@ -91,17 +93,19 @@ This extension contributes the following settings:
 ## Further Updates
 
 * [ ] debugger
-* [ ] improve icons
+* [ ] improve icons and images
 * [ ] improve code
   * [ ] comments
-* [ ] formatter
+* [ ] formatter ?
 * [ ] remember launched scripts from history so you could also launch them from an ahk.manager secondary treeview (like extension treeviews)
-* [ ] [offline docs](https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword)
+* [ ] better [offline docs](https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword)
 
 ## Release Notes
 
-### 1.0.0
+### 0.0.1
 
 Initial release of this extension.
+
+> This is just a preview, but I think that is good enough to be considered usable.
 
 May you **Enjoy** with this extension and craft amazing scripts with it !
