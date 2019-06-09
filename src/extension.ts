@@ -262,7 +262,7 @@ export function activate(context: vscode.ExtensionContext) {
 							}
 							else
 								editor.insertSnippet(new vscode.SnippetString(
-									`TrayIcon = \${1:${selPath}}\nIf (FileExist(TrayIcon)) {\n\tMenu, Tray, Icon, TrayIcon\n}\n$0`
+									`TrayIcon = \${1:${selPath}}\nIf (FileExist(TrayIcon)) {\n\tMenu, Tray, Icon, %TrayIcon%\n}\n$0`
 								)).then((value) => {
 									if (value)
 										scriptCollection.setCurrentTrayIcon(selPath);
