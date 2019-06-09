@@ -1,9 +1,11 @@
 # vscode-ahk-manager
 
-Welcome to my third Extension !
+**Welcome** to my third [Extension](https://marketplace.visualstudio.com/items?itemName=Denis-net.vscode-ahk-manager) !
+
+![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager.gif)
 
 Inspired by the [Sublime plug-In](https://github.com/ahkscript/SublimeAutoHotkey),
-this is the Yin of the [AutoHotkey extension](https://github.com/stef-levesque/vscode-autohotkey).
+this is the Yin of the [AutoHotkey extension](https://github.com/stef-levesque/vscode-autohotkey) !
 
 _I like to write AutoHotkey scripts, this language is amazing, but I often found myself go back and forth between writing an app, looking for it in my messy tray, reloading it, testing it, grab the browser and tuning it again. So I decided to improve my tools and add the capabiliy to just reload a script through a command and/or a button._
 
@@ -24,11 +26,13 @@ With this extension you can cut off the development time using handy commands:
 
 * **Run** the script without compile it
   * Set command line arguments for scripts, with ("`Ctrl`+`A` `Ctrl`+`G`") (they will be remembered among startups)
+![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager-run-args.gif)
 * **Compile** in the script's folder by default
   * Change compile destination on the fly with **Compile As** (it will be remembered among startups)
+![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager-compile-as.gif)
   * **Run Compiled** scripts
 * **Kill** the script and the compiled exe with ease
-* Tired of typing ? just use buttons 😉
+* Tired of typing ? use buttons instead ! 😉
 * Just want to test simple script parts ? select some text and **Run Buffered**
 * If you put an icon with the same name of the `script.ahk` (so named `script.ico`) the icon will be used by the compiler.
   * Otherwise with the command `ahk.set-icon` an icon will be picked up instead of the default
@@ -38,11 +42,14 @@ With this extension you can cut off the development time using handy commands:
 * Chose an icon with "`Ctrl`+`A` `Ctrl+I`"
 * Insert a tray icon with "`Ctrl`+`A` `Ctrl+T`"
   * subsequent call will update the TrayIcon value
+![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager-change-Icon.gif)
 * You can temporary switch executable on the fly with the `ahk.temporary-switch-executable` command
 * Initialize an empty ahk script with the default snippet
   * Or define another one.
 * [Experimental] an experimental formatter has been added so you could format a little bit the code (it use this [simple ahk script](https://autohotkey.com/board/topic/55766-script-auto-formatter-very-basic-beginner-script/))
 * With `Ctrl`+`Shift`+`A` grab the script manager viewer and check ahk scripts' states
+
+![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager-manager.gif)
   * You can also interact with them :
     * Pause/Unpause
     * Suspend/Unsuspend
@@ -60,6 +67,8 @@ With this extension you can cut off the development time using handy commands:
     * You can disable mine through *`ahk.format` = false*
 
 ## Extension Settings
+
+![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager-settings.gif)
 
 This extension contributes the following settings:
 
