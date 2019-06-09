@@ -83,7 +83,7 @@ export function activate(context: vscode.ExtensionContext) {
 						// vscode.env.openExternal(uri);
 						vscode.commands.executeCommand('vscode.open', uri);
 					} else {
-						launchProcess(cfg.docsPath, false);
+						launchProcess(cfg.docsPath, false);//https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword
 					}
 				});
 			}

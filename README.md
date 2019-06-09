@@ -87,6 +87,7 @@ This extension contributes the following settings:
   * [ ] comments
 * [ ] formatter
 * [ ] remember launched scripts from history so you could also launch them from an ahk.manager secondary treeview (like extension treeviews)
+* [ ] [offline docs](https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword)
 
 ## Release Notes
 
