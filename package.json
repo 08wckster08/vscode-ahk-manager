@@ -17,6 +17,8 @@
 		"Snippets",
 		"Formatters"
 	],
+	"private": true,
+	"preview": true,
 	"keywords": [
 		"ahk",
 		"AHK",
