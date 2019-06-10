@@ -44,6 +44,7 @@ With this extension you can cut off the development time using handy commands:
 * Chose an icon with "`Ctrl`+`A` `Ctrl+I`"
 * Insert a tray icon with "`Ctrl`+`A` `Ctrl+T`"
   * subsequent call will update the TrayIcon value
+
 ![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager-change-Icon.gif)
 * You can temporary switch executable on the fly with the `ahk.temporary-switch-executable` command
 * Initialize an empty ahk script with the default snippet
