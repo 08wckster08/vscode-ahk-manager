@@ -5,6 +5,9 @@ export const PANIC_RAW_SCRIPT = `
     Loop %IDList%
       {
       ID:=IDList%A_Index%
+      WinGet, PID, PID,   % "ahk_id " ID
+      If ( PID = DllCall("GetCurrentProcessId") ) ; skip pause test for self
+        Continue
       WinGetTitle, ATitle, ahk_id %ID%
       IfNotInString, ATitle, %A_ScriptFullPath%
         {

@@ -415,7 +415,7 @@ export function activate(context: vscode.ExtensionContext) {
 	function runBuffered(buffer: string = "MsgBox, Select something first !") {
 
 		try {
-			const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
+			const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now() + "_aka_" + path.basename(vscode.window.activeTextEditor!!.document.uri.fsPath);
 			let is_the_second_connection = false;
 			let server = net.createServer(function (stream) {
 				if (is_the_second_connection)
