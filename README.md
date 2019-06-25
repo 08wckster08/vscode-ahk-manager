@@ -1,4 +1,4 @@
-# vscode-ahk-manager
+# AutoHotkey Manager
 
 **Welcome** to my third [Extension](https://marketplace.visualstudio.com/items?itemName=Denis-net.vscode-ahk-manager) !
 
@@ -102,6 +102,11 @@ This extension contributes the following settings:
 * [ ] better [offline docs](https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword)
 
 ## Release Notes
+
+### 0.0.3
+
+Improved the `ahk.kill` command: now it affects run-piped scripts too.
+(Thanks to [bugrobot](https://github.com/bugrobot) for having pointed this out to me).
 
 ### 0.0.2
 
