@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
 			else if (cfg.docsPath) {
 				// const docs = cfg.docsPath;
 				checkConnection((online) => {
-					if (online) {
+					if (online && !cfg.on_search_use_offline_docs) {
 						const uri = vscode.Uri.parse('https://www.autohotkey.com/docs/AutoHotkey.htm');
 						// vscode.env.openExternal(uri);
 						vscode.commands.executeCommand('vscode.open', uri);
