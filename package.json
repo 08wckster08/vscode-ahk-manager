@@ -285,7 +285,7 @@
 					"group": "navigation@3"
 				},
 				{
-					"when": "editorLangId == ahk && config.ahk.displayButtons && editorHasSelection && resourceScheme == file",
+					"when": "editorLangId == ahk && resourceScheme == file && config.ahk.displayButtons",
 					"command": "ahk.run-buffer",
 					"group": "navigation@4"
 				}
