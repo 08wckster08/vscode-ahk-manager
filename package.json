@@ -4,7 +4,7 @@
 	"description": "Helpful tools for working with AHK",
 	"publisher": "Denis-net",
 	"icon": "media/icon.png",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"repository": {
 		"url": "https://github.com/Denis-net/vscode-ahk-manager",
 		"type": "git"
