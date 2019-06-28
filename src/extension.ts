@@ -133,10 +133,12 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUN, () => {
 			if (vscode.window.activeTextEditor && cfg.executablePath) {
-				const scriptFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
-				if (!runned_scripts.includes(scriptFilePath))
-					runned_scripts.push(scriptFilePath);
-				launchProcess(cfg.executablePath, false, "/ErrorStdOut", "/r", cfg.pathify(scriptFilePath), scriptCollection.getCurrentScriptArguments());
+				saveIfNeededThenRun((editor) => {
+					const scriptFilePath = editor.document.uri.fsPath;
+					if (!runned_scripts.includes(scriptFilePath))
+						runned_scripts.push(scriptFilePath);
+					launchProcess(cfg.executablePath, false, "/ErrorStdOut", "/r", cfg.pathify(scriptFilePath), scriptCollection.getCurrentScriptArguments());
+				});
 			}
 		}),
 
@@ -160,28 +162,30 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.COMPILE, () => {
 			try {
-				if (vscode.window.activeTextEditor && cfg.compilerPath) {
-					const scriptFilePath = vscode.window.activeTextEditor.document.uri.fsPath;
-					if (!compiled_scripts.includes(scriptFilePath))
-						compiled_scripts.push(scriptFilePath);
+				if (cfg.compilerPath) {
+					saveIfNeededThenRun((editor) => {
+						const scriptFilePath = editor.document.uri.fsPath;
+						if (!compiled_scripts.includes(scriptFilePath))
+							compiled_scripts.push(scriptFilePath);
 
-					let iconPath = scriptCollection.getCurrentIcon();
-					iconPath = fs.existsSync(iconPath) ? "/icon " + cfg.pathify(iconPath) : "";
+						let iconPath = scriptCollection.getCurrentIcon();
+						iconPath = fs.existsSync(iconPath) ? "/icon " + cfg.pathify(iconPath) : "";
 
-					let destination = scriptCollection.getCurrentDestination();
-					launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), "/out", cfg.pathify(destination), iconPath).then((success) => {
-						if (success) {
-							vscode.window.showInformationMessage(`The script has been compiled!\nYou can find it on \`${destination}\``, LAUNCH, REVEAL_FILE_IN_OS).then((res) => {
-								switch (res) {
-									case LAUNCH:
-										vscode.commands.executeCommand(COMMAND_IDS.RUN_COMPILED);
-										break;
-									case REVEAL_FILE_IN_OS:
-										vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, vscode.Uri.file(destination));
-										break;
-								}
-							});
-						}
+						let destination = scriptCollection.getCurrentDestination();
+						launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), "/out", cfg.pathify(destination), iconPath).then((success) => {
+							if (success) {
+								vscode.window.showInformationMessage(`The script has been compiled!\nYou can find it on \`${destination}\``, LAUNCH, REVEAL_FILE_IN_OS).then((res) => {
+									switch (res) {
+										case LAUNCH:
+											vscode.commands.executeCommand(COMMAND_IDS.RUN_COMPILED);
+											break;
+										case REVEAL_FILE_IN_OS:
+											vscode.commands.executeCommand(COMMAND_IDS.COMMONS.REVEAL_FILE_IN_OS, vscode.Uri.file(destination));
+											break;
+									}
+								});
+							}
+						});
 					});
 				}
 			} catch (err) {
@@ -215,8 +219,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUNBUFFERED, () => {
-			const buffer = getValidSelectedText();
-			runBuffered(buffer);
+			saveIfNeededThenRun(()=>runBuffered(getValidSelectedText()));
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SET_TRAY_ICON, () => {
@@ -643,6 +646,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 		}));
 	*/
+}
+
+function saveIfNeededThenRun(run: (editor: vscode.TextEditor) => void) {
+	if (!vscode.window.activeTextEditor)
+		return;
+	const editor = vscode.window.activeTextEditor;
+
+	if (editor.document.isDirty)
+		editor.document.save().then((result) => {
+			if (result)
+				run(editor);
+		});
+	else
+		run(editor);
 }
 
 export function deactivate() {

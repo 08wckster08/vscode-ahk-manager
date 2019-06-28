@@ -73,7 +73,7 @@
 			},
 			{
 				"command": "ahk.run-buffer",
-				"title": "Run As Piped Buffer",
+				"title": "Run Selected Text",
 				"category": "AHK",
 				"icon": "./media/zap.svg",
 				"enablement": "resourceLangId == ahk"
