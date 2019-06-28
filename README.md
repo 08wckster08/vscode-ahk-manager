@@ -106,7 +106,7 @@ This extension contributes the following settings:
 ### 0.0.4
 
 * BugFix: `ahk.kill` command may kill itself before killing other scripts...
-* Added `ahk.onSearch.OpenDocsAlwaysOffline`
+* Added `ahk.onSearch.useAlwaysOfflineDocs` (currently works only with no selected text)
 * Improved the `ahk.run-buffer` command UI experience
 * `ahk.run`,`ahk.compile` and `ahk.run-buffer` will save dirty script before operations
 * Found an intresting way of showing the offline docs
