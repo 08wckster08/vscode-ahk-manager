@@ -36,8 +36,7 @@
 	},
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [
-			{
+		"commands": [{
 				"command": "ahk.compile",
 				"title": "Compile Script",
 				"category": "AHK",
@@ -160,116 +159,114 @@
 				"enablement": "view == ahk.scripts-manager"
 			}
 		],
-		"snippets": [
-			{
-				"language": "ahk",
-				"path": "./snippets.json"
-			}
-		],
-		"configuration": [
-			{
-				"title": "AutoHotkey Manager configuration",
-				"type": "object",
-				"properties": {
-					"ahk.executableFullPath": {
-						"title": "Ahk executable full path",
-						"type": "string",
-						"default": "C:\\Program Files\\AutoHotKey\\AutoHotkey.exe",
-						"description": "Set the ahk executables full path"
-					},
-					"ahk.displayButtons": {
-						"title": "Show buttons",
-						"description": "Specifies whether to show buttons in the editor",
-						"type": "boolean",
-						"default": true,
-						"scope": "resource"
-					},
-					"ahk.scriptFolders.openInNewInstance": {
-						"title": "Open script folder in a new instance",
-						"description": "Specifies whether to open the script in a new vscode instance (clic on a TreeItem with [Ctrl] down)",
-						"type": "boolean",
-						"default": true,
-						"scope": "resource"
-					},
-					"ahk.onEmpty.initializeWithHeaderSnippet": {
-						"title": "Initialize with an header snippet",
-						"type": "boolean",
-						"default": true,
-						"description": "Specifies whether automatically call a snippet, by its name, header on empty .ahk files",
-						"scope": "resource"
-					},
-					"ahk.onEmpty.overrideHeaderSnippet": {
-						"title": "Header snippet override",
-						"type": "string",
-						"default": "Default Sublime Header",
-						"description": "Override the default header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
-						"scope": "resource"
-					},
-					"ahk.onSave.compile": {
-						"title": "Compile on Save",
-						"description": "Activate Build on Save.",
-						"type": "boolean",
-						"default": false,
-						"scope": "resource"
-					},
-					"ahk.onSave.run": {
-						"title": "Run on Save",
-						"description": "Activate Run on Save (`Ctrl`+`S`)",
-						"type": "boolean",
-						"default": false,
-						"scope": "resource"
-					},
-					"ahk.onArgs.run": {
-						"title": "Run on Argument changes",
-						"description": "Run as soon as command line arguments are set/changed (with `ahk.set-script-arguments`)",
-						"type": "boolean",
-						"default": false,
-						"scope": "resource"
-					},
-					"ahk.onSearch.queryTemplate": {
-						"title": "Search Query Template",
-						"type": "string",
-						"default": "www.google.com/search?q=site%3Aautohotkey.com+ahk+${encodedSelection}&oq=site%3Aautohotkey.com+ahk+${encodedSelection}",
-						"description": "Specify the search query template used in `ahk.docs` command with selections",
-						"scope": "resource"
-					},
-					"ahk.onSearch.targetBrowser": {
-						"title": "Search Target Browser",
-						"type": "object",
-						"default": "{app: 'firefox'}",
-						"description": "Specify the browser used in `ahk.docs` command with selections. (see https://github.com/sindresorhus/open)",
-						"scope": "resource"
-					},
-					"ahk.format.enabled": {
-						"title": "Enable sperimental formatter",
-						"description": "Enable a simple formatter",
-						"type": "boolean",
-						"default": true,
-						"scope": "resource"
-					}
+		"snippets": [{
+			"language": "ahk",
+			"path": "./snippets.json"
+		}],
+		"configuration": [{
+			"title": "AutoHotkey Manager configuration",
+			"type": "object",
+			"properties": {
+				"ahk.executableFullPath": {
+					"title": "Ahk executable full path",
+					"type": "string",
+					"default": "C:\\Program Files\\AutoHotKey\\AutoHotkey.exe",
+					"description": "Set the ahk executables full path"
+				},
+				"ahk.displayButtons": {
+					"title": "Show buttons",
+					"description": "Specifies whether to show buttons in the editor",
+					"type": "boolean",
+					"default": true,
+					"scope": "resource"
+				},
+				"ahk.scriptFolders.openInNewInstance": {
+					"title": "Open script folder in a new instance",
+					"description": "Specifies whether to open the script in a new vscode instance (clic on a TreeItem with [Ctrl] down)",
+					"type": "boolean",
+					"default": true,
+					"scope": "resource"
+				},
+				"ahk.onEmpty.initializeWithHeaderSnippet": {
+					"title": "Initialize with an header snippet",
+					"type": "boolean",
+					"default": true,
+					"description": "Specifies whether automatically call a snippet, by its name, header on empty .ahk files",
+					"scope": "resource"
+				},
+				"ahk.onEmpty.overrideHeaderSnippet": {
+					"title": "Header snippet override",
+					"type": "string",
+					"default": "Default Sublime Header",
+					"description": "Override the default header snippet using the name of the substitute to be inserted (snippet must exist, in order to be called)",
+					"scope": "resource"
+				},
+				"ahk.onSave.compile": {
+					"title": "Compile on Save",
+					"description": "Activate Build on Save.",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
+				},
+				"ahk.onSave.run": {
+					"title": "Run on Save",
+					"description": "Activate Run on Save (`Ctrl`+`S`)",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
+				},
+				"ahk.onArgs.run": {
+					"title": "Run on Argument changes",
+					"description": "Run as soon as command line arguments are set/changed (with `ahk.set-script-arguments`)",
+					"type": "boolean",
+					"default": false,
+					"scope": "resource"
+				},
+				"ahk.onSearch.queryTemplate": {
+					"title": "Search Query Template",
+					"type": "string",
+					"default": "www.google.com/search?q=site%3Aautohotkey.com+ahk+${encodedSelection}&oq=site%3Aautohotkey.com+ahk+${encodedSelection}",
+					"description": "Specify the search query template used in `ahk.docs` command with selections",
+					"scope": "resource"
+				},
+				"ahk.onSearch.targetBrowser": {
+					"title": "Search Target Browser",
+					"type": "object",
+					"default": "{app: 'firefox'}",
+					"description": "Specify the browser used in `ahk.docs` command with selections. (see https://github.com/sindresorhus/open)",
+					"scope": "resource"
+				},
+				"ahk.onSearch.useAlwaysOfflineDocs": {
+					"title": "Use Always Offline Docs",
+					"type": "boolean",
+					"default": false,
+					"description": "Specify whether to open always an offline version of the docs",
+					"scope": "resource"
+				},
+				"ahk.format.enabled": {
+					"title": "Enable sperimental formatter",
+					"description": "Enable a simple formatter",
+					"type": "boolean",
+					"default": true,
+					"scope": "resource"
 				}
 			}
-		],
+		}],
 		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "ahk-manager",
-					"title": "AutoHotkey  Manager",
-					"icon": "media/dep.svg"
-				}
-			]
+			"activitybar": [{
+				"id": "ahk-manager",
+				"title": "AutoHotkey  Manager",
+				"icon": "media/dep.svg"
+			}]
 		},
 		"views": {
-			"ahk-manager": [
-				{
-					"id": "ahk.scripts-manager",
-					"name": "Scripts Manager"
-				}
-			]
+			"ahk-manager": [{
+				"id": "ahk.scripts-manager",
+				"name": "Scripts Manager"
+			}]
 		},
 		"menus": {
-			"editor/title": [
-				{
+			"editor/title": [{
 					"when": "resourceLangId == ahk && config.ahk.displayButtons && resourceScheme == file",
 					"command": "ahk.compile",
 					"group": "navigation@1"
@@ -290,15 +287,12 @@
 					"group": "navigation@4"
 				}
 			],
-			"view/title": [
-				{
-					"command": "ahk.scripts-manager.refresh",
-					"when": "view == ahk.scripts-manager",
-					"group": "navigation"
-				}
-			],
-			"view/item/context": [
-				{
+			"view/title": [{
+				"command": "ahk.scripts-manager.refresh",
+				"when": "view == ahk.scripts-manager",
+				"group": "navigation"
+			}],
+			"view/item/context": [{
 					"command": "ahk.scripts-manager.pause-on",
 					"when": "view == ahk.scripts-manager && viewItem =~ /\\.unpaused/",
 					"group": "inline@1"
@@ -325,8 +319,7 @@
 				}
 			]
 		},
-		"keybindings": [
-			{
+		"keybindings": [{
 				"command": "ahk.compile",
 				"key": "ctrl+shift+b",
 				"when": "resourceLangId == ahk && editorTextFocus"

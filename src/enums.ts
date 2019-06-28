@@ -40,7 +40,8 @@ export const SETTINGS_KEYS: any = {
 	OnSearchQueryTemplate: "ahk.onSearch.queryTemplate",
 	OnSearchTargetBrowser: "ahk.onSearch.targetBrowser",
 	OpenScriptFoldersInNewInstance: "ahk.scriptFolders.openInNewInstance",
-	RunOnArgs: 'ahk.onArgs.run'
+	RunOnArgs: 'ahk.onArgs.run',
+	OnSearchUseOfflineDocs: 'ahk.onSearch.useAlwaysOfflineDocs'
 };
 
 export const DEFAULT_HEADER_SNIPPET_NAME = "Default Sublime Header";
