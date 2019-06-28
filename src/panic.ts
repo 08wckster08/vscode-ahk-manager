@@ -39,6 +39,9 @@ export const Kill_Target_Raw_Script = (target: string) =>
     Loop %IDList%
       {
       ID:=IDList%A_Index%
+      WinGet, PID, PID,   % "ahk_id " ID
+      If ( PID = DllCall("GetCurrentProcessId") ) ; skip pause test for self
+        Continue
       WinGetTitle, ATitle, ahk_id %ID%
       IfInString, ATitle, %Target%
         {
