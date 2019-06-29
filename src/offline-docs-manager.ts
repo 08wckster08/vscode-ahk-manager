@@ -114,7 +114,10 @@ export class OfflineDocsManager {
             this.docsPanel = vscode.window.createWebviewPanel('ahk-offline-docs', 'Documentations', { viewColumn: vscode.ViewColumn.One, preserveFocus: true }, {
                 enableScripts: true,
                 enableFindWidget: true,
-                // localResourceRoots: [vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs//')).with({ scheme: 'vscode-resource' })]
+                enableCommandUris: true,
+                localResourceRoots: [vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs//')).with({ scheme: 'vscode-resource' }),
+                // vscode.Uri.parse('command')
+            ]
             });
             this.docsPanel.onDidDispose((e) => {
                 this.isDocsPanelDisposed = true;
@@ -141,14 +144,17 @@ export class OfflineDocsManager {
                     const aTags = dom.window.document.getElementsByTagName('a');
                     const len = aTags.length;
                     const basePath = url.toString();
-                    // for (let i = 0; i < len; i++) {
-                    //     const a = aTags[i];
-                    //     if (!a.href.includes('about:blank'))
-                    //         a.href = basePath + a.href;
-                    // }
-                    // let ser = dom.serialize();
+                    for (let i = 0; i < len; i++) {
+                        const a = aTags[i];
+                        if (!a.href.includes('about:blank')) {
+                            const commentCommandUri = vscode.Uri.parse(`command:ahk.spy`);
+                            // const contents = new vscode.MarkdownString(`[Add comment](${commentCommandUri})`);
+                            a.href = commentCommandUri.toString();//basePath + a.href;
+                        }
+                    }
+                    let ser = dom.serialize();
                     //.replace('file://','vscode-resource://')
-                    this.docsPanel.webview.html = data/*ser*/.toString().replace('<head>', `<head>\n<base href="${url.toString()}/">`);
+                    this.docsPanel.webview.html = /*data/*ser*/ser.toString().replace('<head>', `<head>\n<base href="${url.toString()}/">`);
                 });
         }, 2000);
 
