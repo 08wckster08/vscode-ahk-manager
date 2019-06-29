@@ -5,6 +5,9 @@ import { scriptCollection } from './script-meta-data-collection';
 import { pathify } from "./file-utils";
 
 export class Configuration {
+
+    public extensionPath: string = '';
+
     public executablePath: string = "";
     public executableDir: vscode.Uri | undefined;
     public compilerPath: string = "";

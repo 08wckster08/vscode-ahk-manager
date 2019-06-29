@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import * as child_process from 'child_process';
+import { cfg } from './configuration';
 
 export function launchProcess(name: string, quiet: boolean, ...args: string[]): Promise<boolean> {
     let p: Promise<boolean> = new Promise((r, c) => {
         try {
             let command = name.concat(' ', args.join(' '));
-            child_process.exec(command, function callback(error: any, stdout: any, stderr: any) {
+            child_process.exec(command, { cwd: cfg.extensionPath }, function callback(error: any, stdout: any, stderr: any) {
                 if (error) {
                     if (quiet) {
                         console.log('error: ' + error);

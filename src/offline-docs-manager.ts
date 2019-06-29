@@ -41,8 +41,8 @@ export class OfflineDocsManager {
         }
 
         if (overriddenDestination) {
-            this.docsDirectoryPath = overriddenDestination;
-            this.docsIndexPath = path.join(overriddenDestination, DOCS_INDEX);
+            this.docsDirectoryPath = path.join(overriddenDestination, 'Docs');
+            this.docsIndexPath = path.join(this.docsDirectoryPath, DOCS_INDEX);
         }
 
         if (!fs.existsSync(this.docsIndexPath)) {
@@ -51,7 +51,7 @@ export class OfflineDocsManager {
                 location: vscode.ProgressLocation.Notification,
                 title: "Decompiling Ahk Offline docs ...",
             }, (progress, token) => {
-                return launchProcess('hh.exe', false, '-decompile', this.docsDirectoryPath, sourceChm)
+                return launchProcess('hh.exe', false, '-decompile', 'Docs'/*this.docsDirectoryPath*/, sourceChm)//.replace(/\\/g,'/') .replace(/\\/g,'/')
                     .then((result) => {
                         if (result)
                             this.loadDocs();
@@ -114,7 +114,7 @@ export class OfflineDocsManager {
             this.docsPanel = vscode.window.createWebviewPanel('ahk-offline-docs', 'Documentations', { viewColumn: vscode.ViewColumn.One, preserveFocus: true }, {
                 enableScripts: true,
                 enableFindWidget: true,
-                localResourceRoots: [vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs//')).with({ scheme: 'vscode-resource' })]
+                // localResourceRoots: [vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs//')).with({ scheme: 'vscode-resource' })]
             });
             this.docsPanel.onDidDispose((e) => {
                 this.isDocsPanelDisposed = true;
@@ -141,14 +141,14 @@ export class OfflineDocsManager {
                     const aTags = dom.window.document.getElementsByTagName('a');
                     const len = aTags.length;
                     const basePath = url.toString();
-                    for (let i = 0; i < len; i++) {
-                        const a = aTags[i];
-                        if (!a.href.includes('about:blank'))
-                            a.href = basePath + a.href;
-                    }
-                    let ser = dom.serialize();
+                    // for (let i = 0; i < len; i++) {
+                    //     const a = aTags[i];
+                    //     if (!a.href.includes('about:blank'))
+                    //         a.href = basePath + a.href;
+                    // }
+                    // let ser = dom.serialize();
                     //.replace('file://','vscode-resource://')
-                    this.docsPanel.webview.html = /*data*/ser.toString().replace('<head>', `<head>\n<base href="${url.toString()}/">`);
+                    this.docsPanel.webview.html = data/*ser*/.toString().replace('<head>', `<head>\n<base href="${url.toString()}/">`);
                 });
         }, 2000);
 
