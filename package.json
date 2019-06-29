@@ -120,6 +120,11 @@
 				"enablement": "resourceLangId == ahk"
 			},
 			{
+				"command": "ahk.remove-ahk-offline-docs",
+				"title": "Clear offline docs cache",
+				"enablement": "resourceLangId == ahk"
+			},
+			{
 				"command": "ahk.scripts-manager.refresh",
 				"title": "Refresh",
 				"icon": {
@@ -242,6 +247,12 @@
 					"default": false,
 					"description": "Specify whether to open always an offline version of the docs",
 					"scope": "resource"
+				},
+				"ahk.overrideOfflineDocsFullPath": {
+					"title": "Override offline docs path",
+					"type": "string",
+					"default": "",
+					"description": "Set where to store the decompiled offline docs (if you leave it empty, %appdata% will be used instead)(the path mustn't contains spaces, because hh.exe doesn't like them)"
 				},
 				"ahk.format.enabled": {
 					"title": "Enable sperimental formatter",

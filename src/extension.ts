@@ -5,7 +5,8 @@ https://www.autohotkey.com/docs/Scripts.htm#cmd
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as child_process from 'child_process';
+import { launchProcess } from './process-utils';
+import { offlineDocsManager } from './offline-docs-manager';
 import * as net from 'net';
 import * as panic from './panic';
 import { checkConnection } from './connectivity';
@@ -13,6 +14,7 @@ import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH, EXTENSION_NAME, SETTINGS_KEYS }
 import { ScriptManagerProvider, Script } from './script-manager-provider';
 import { cfg } from './configuration';
 import { scriptCollection } from './script-meta-data-collection';
+import { pathify } from './file-utils';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -83,7 +85,8 @@ export function activate(context: vscode.ExtensionContext) {
 						// vscode.env.openExternal(uri);
 						vscode.commands.executeCommand('vscode.open', uri);
 					} else {
-						launchProcess(cfg.docsPath, false);//https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword
+						offlineDocsManager.initialize(cfg.docsPath, cfg.offline_docs_full_path);
+						// launchProcess(cfg.docsPath, false);//https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword
 					}
 				});
 			}
@@ -123,11 +126,11 @@ export function activate(context: vscode.ExtensionContext) {
 					vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
 					setTimeout(() => {
 						if (fs.existsSync(compiled_path))
-							launchProcess(cfg.pathify(compiled_path), false);
+							launchProcess(pathify(compiled_path), false);
 					}, 3000);
 				}
 				else
-					launchProcess(cfg.pathify(compiled_path), false, scriptCollection.getCurrentScriptArguments());
+					launchProcess(pathify(compiled_path), false, scriptCollection.getCurrentScriptArguments());
 			}
 		}),
 
@@ -137,7 +140,7 @@ export function activate(context: vscode.ExtensionContext) {
 					const scriptFilePath = editor.document.uri.fsPath;
 					if (!runned_scripts.includes(scriptFilePath))
 						runned_scripts.push(scriptFilePath);
-					launchProcess(cfg.executablePath, false, "/ErrorStdOut", "/r", cfg.pathify(scriptFilePath), scriptCollection.getCurrentScriptArguments());
+					launchProcess(cfg.executablePath, false, "/ErrorStdOut", "/r", pathify(scriptFilePath), scriptCollection.getCurrentScriptArguments());
 				});
 			}
 		}),
@@ -169,10 +172,10 @@ export function activate(context: vscode.ExtensionContext) {
 							compiled_scripts.push(scriptFilePath);
 
 						let iconPath = scriptCollection.getCurrentIcon();
-						iconPath = fs.existsSync(iconPath) ? "/icon " + cfg.pathify(iconPath) : "";
+						iconPath = fs.existsSync(iconPath) ? "/icon " + pathify(iconPath) : "";
 
 						let destination = scriptCollection.getCurrentDestination();
-						launchProcess(cfg.compilerPath, false, "/in", cfg.pathify(scriptFilePath), "/out", cfg.pathify(destination), iconPath).then((success) => {
+						launchProcess(cfg.compilerPath, false, "/in", pathify(scriptFilePath), "/out", pathify(destination), iconPath).then((success) => {
 							if (success) {
 								vscode.window.showInformationMessage(`The script has been compiled!\nYou can find it on \`${destination}\``, LAUNCH, REVEAL_FILE_IN_OS).then((res) => {
 									switch (res) {
@@ -207,7 +210,7 @@ export function activate(context: vscode.ExtensionContext) {
 					vscode.window.showSaveDialog(options).then(fileUri => {
 						if (vscode.window.activeTextEditor && cfg.compilerPath && fileUri) {
 							scriptCollection.setCurrentDestination(fileUri.fsPath);
-							// cfg.overriddenCompiledDestination = cfg.pathify(fileUri.fsPath);
+							// cfg.overriddenCompiledDestination = pathify(fileUri.fsPath);
 							vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
 						}
 					});
@@ -219,7 +222,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUNBUFFERED, () => {
-			saveIfNeededThenRun(()=>runBuffered(getValidSelectedText()));
+			saveIfNeededThenRun(() => runBuffered(getValidSelectedText()));
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SET_TRAY_ICON, () => {
@@ -326,6 +329,9 @@ export function activate(context: vscode.ExtensionContext) {
 
 		vscode.commands.registerCommand(COMMAND_IDS.REMOVE_METADATA, () => {
 			scriptCollection.clear();
+		}),
+		vscode.commands.registerCommand(COMMAND_IDS.REMOVE_OFFLINE_DOCS, () => {
+			offlineDocsManager.clear();
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.REFRESH, (element: Script) => {
@@ -446,32 +452,32 @@ export function activate(context: vscode.ExtensionContext) {
 		return buffer;
 	}
 
-	function launchProcess(name: string, quiet: boolean, ...args: string[]): Promise<boolean> {
-		let p: Promise<boolean> = new Promise((r, c) => {
-			try {
-				let command = name.concat(' ', args.join(' '));
-				child_process.exec(command, function callback(error: any, stdout: any, stderr: any) {
-					if (error) {
-						if (quiet) {
-							console.log('error: ' + error);
-						}
-						else
-							vscode.window.showErrorMessage("An error has occured while launching the executable: " + error);
-						c(error);
-					}
-					else
-						r(true);
-				});
-			} catch (err) {
-				if (quiet)
-					console.log(err);
-				else
-					vscode.window.showErrorMessage("unable to launch the executable: " + err.message);
-				c(err);
-			}
-		});
-		return p;
-	}
+	// function launchProcess(name: string, quiet: boolean, ...args: string[]): Promise<boolean> {
+	// 	let p: Promise<boolean> = new Promise((r, c) => {
+	// 		try {
+	// 			let command = name.concat(' ', args.join(' '));
+	// 			child_process.exec(command, function callback(error: any, stdout: any, stderr: any) {
+	// 				if (error) {
+	// 					if (quiet) {
+	// 						console.log('error: ' + error);
+	// 					}
+	// 					else
+	// 						vscode.window.showErrorMessage("An error has occured while launching the executable: " + error);
+	// 					c(error);
+	// 				}
+	// 				else
+	// 					r(true);
+	// 			});
+	// 		} catch (err) {
+	// 			if (quiet)
+	// 				console.log(err);
+	// 			else
+	// 				vscode.window.showErrorMessage("unable to launch the executable: " + err.message);
+	// 			c(err);
+	// 		}
+	// 	});
+	// 	return p;
+	// }
 
 
 	/*

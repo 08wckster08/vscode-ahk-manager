@@ -13,7 +13,9 @@ export const COMMAND_IDS: any = {
 	SET_TRAY_ICON: "ahk.set-tray-icon",
 	SET_SCRIPT_ARGS: "ahk.set-script-arguments",
 	SWITCH: "ahk.temporary-switch-executable",
+
 	REMOVE_METADATA: "ahk.remove-script-metadata",
+	REMOVE_OFFLINE_DOCS: "ahk.remove-ahk-offline-docs",
 
 	TREE_COMMANDS: {
 		REFRESH: "ahk.scripts-manager.refresh",
@@ -41,10 +43,13 @@ export const SETTINGS_KEYS: any = {
 	OnSearchTargetBrowser: "ahk.onSearch.targetBrowser",
 	OpenScriptFoldersInNewInstance: "ahk.scriptFolders.openInNewInstance",
 	RunOnArgs: 'ahk.onArgs.run',
-	OnSearchUseOfflineDocs: 'ahk.onSearch.useAlwaysOfflineDocs'
+	OnSearchUseOfflineDocs: 'ahk.onSearch.useAlwaysOfflineDocs',
+	OfflineDocsFullPath: 'ahk.overrideOfflineDocsFullPath'
 };
 
 export const DEFAULT_HEADER_SNIPPET_NAME = "Default Sublime Header";
 
 export const REVEAL_FILE_IN_OS = "Reveal file in OS";
 export const LAUNCH = "Launch now";
+
+export const DOCS_INDEX = 'index.hhk';
