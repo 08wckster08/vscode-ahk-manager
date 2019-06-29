@@ -77,31 +77,23 @@ export class OfflineDocsManager {
                     progress.report({ message: 'file loaded' });
 
                     const dom = new JSDOM(data);
-                    // console.log(dom.window.document.querySelector("p").textContent); // "Hello world"
-                    // this.lastWrittenData = data;
                     this.collection = new Array();
                     if (dom) {
                         var listItems = dom.window.document.getElementsByTagName('param');
-                        // let index: number = 0;
                         let lastName: string = '';
                         for (let i = 0; i < listItems.length; i++) {
                             const item = listItems[i];
                             if (item.name === "Local") {
                                 this.collection.push(new OfflineDocItem('', lastName, item.value!.toString()));
-                                // index++;
                             }
                             else
                                 lastName = item.value.toString();
                         }
-                        // var x = 5;
                     }
                     progress.report({ message: 'data parsed' });
                     this.isCollectionLoaded = true;
-                    // if (this.delayedSetCurrentUri) {
-                    // this.setCurrent(this.delayedSetCurrentUri);
                     progress.report({ message: 'docs ready !' });
                     this.openTheDocsPanel(vscode.window.visibleTextEditors.length + 1);
-                    // }
                 }).catch((ex) => vscode.window.showErrorMessage('Unable to load ahk\'s docs ' + ex));
             });
         }
@@ -111,13 +103,11 @@ export class OfflineDocsManager {
     openTheDocsPanel(column: number) {
 
         if (!this.docsPanel || this.isDocsPanelDisposed) {
-            this.docsPanel = vscode.window.createWebviewPanel('ahk-offline-docs', 'Documentations', { viewColumn: vscode.ViewColumn.One, preserveFocus: true }, {
+            this.docsPanel = vscode.window.createWebviewPanel('ahk-offline-docs', 'Documentation', { viewColumn: vscode.ViewColumn.Two, preserveFocus: true }, {
                 enableScripts: true,
                 enableFindWidget: true,
                 enableCommandUris: true,
-                localResourceRoots: [vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs//')).with({ scheme: 'vscode-resource' }),
-                // vscode.Uri.parse('command')
-            ]
+                localResourceRoots: [vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs//')).with({ scheme: 'vscode-resource' })]
             });
             this.docsPanel.onDidDispose((e) => {
                 this.isDocsPanelDisposed = true;
@@ -129,7 +119,6 @@ export class OfflineDocsManager {
 
         if (this.updateDocsTimeout)
             clearTimeout(this.updateDocsTimeout);
-
         this.updateDocsTimeout = setTimeout(() => {
             if (!this.isDocsPanelDisposed)
                 fs.readFile(path.join(this.docsDirectoryPath, 'docs', 'Hotkeys.htm'), { encoding: "utf-8" }, (err, data) => {
@@ -139,8 +128,7 @@ export class OfflineDocsManager {
                         vscode.window.showErrorMessage('An error has occured while opening the page: ' + err);
                     }
                     let url = vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs/')).with({ scheme: 'vscode-resource' });
-                    const dom = new JSDOM(data);//, { url: url.toString() }
-                    // vscode-workspace-resource:
+                    const dom = new JSDOM(data, { runScripts: "dangerously" });
                     const aTags = dom.window.document.getElementsByTagName('a');
                     const len = aTags.length;
                     const basePath = url.toString();
@@ -148,12 +136,12 @@ export class OfflineDocsManager {
                         const a = aTags[i];
                         if (!a.href.includes('about:blank')) {
                             const commentCommandUri = vscode.Uri.parse(`command:ahk.spy`);
-                            // const contents = new vscode.MarkdownString(`[Add comment](${commentCommandUri})`);
-                            a.href = commentCommandUri.toString();//basePath + a.href;
+                            a.href = basePath + a.href;
+                            // a.removeAttribute('href');
+                            // a.setAttribute('onclick', '{command:ahk.spy}');
                         }
                     }
                     let ser = dom.serialize();
-                    //.replace('file://','vscode-resource://')
                     this.docsPanel.webview.html = /*data/*ser*/ser.toString().replace('<head>', `<head>\n<base href="${url.toString()}/">`);
                 });
         }, 2000);
