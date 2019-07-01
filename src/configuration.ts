@@ -17,7 +17,7 @@ export class Configuration {
     public on_search_query_template: string = "";
     public on_search_target_browser: string = "";
     public on_search_use_offline_docs: boolean = false;
-    public offline_docs_full_path: string = "";
+    public offline_docs_style_path: string = "";
 
     public compile_on_save: boolean = false;
     public run_on_save: boolean = false;
@@ -63,7 +63,7 @@ export class Configuration {
             this.on_search_target_browser = configuration.get(SETTINGS_KEYS.OnSearchTargetBrowser) || "";
             this.on_search_query_template = configuration.get(SETTINGS_KEYS.OnSearchQueryTemplate) || "";
             this.on_search_use_offline_docs = configuration.get(SETTINGS_KEYS.OnSearchUseOfflineDocs, false);
-            this.offline_docs_full_path = configuration.get(SETTINGS_KEYS.OfflineDocsFullPath, "");
+            this.offline_docs_style_path = configuration.get(SETTINGS_KEYS.OverrideOfflineDocsStylePath, "");
 
             this.open_script_folders_in_new_instance = configuration.get(SETTINGS_KEYS.OpenScriptFoldersInNewInstance, true);
             this.run_on_args = configuration.get(SETTINGS_KEYS.RunOnArgs, false);

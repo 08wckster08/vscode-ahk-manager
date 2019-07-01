@@ -35,7 +35,6 @@ export function activate(context: vscode.ExtensionContext) {
 	if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === 'ahk')
 		cfg.initializeEmptyWithHeaderSnippetIfNeeded(vscode.window.activeTextEditor.document.getText().length);
 
-
 	treeDataProvider = new ScriptManagerProvider();
 	context.subscriptions.push(vscode.window.registerTreeDataProvider('ahk.scripts-manager', treeDataProvider));
 	scriptViewer = vscode.window.createTreeView('ahk.scripts-manager', { treeDataProvider });
@@ -64,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
 				clearTimeout(delayed_saving_timeout);
 
 			delayed_saving_timeout = setTimeout(() => {
-				if(isSaveFromButtonRequest) {
+				if (isSaveFromButtonRequest) {
 					isSaveFromButtonRequest = false;
 					return;
 				}
@@ -78,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.DOCS, () => {
-			if (vscode.window.activeTextEditor && !vscode.window.activeTextEditor.selection.isEmpty) {
+			if (vscode.window.activeTextEditor && !vscode.window.activeTextEditor.selection.isEmpty && !cfg.on_search_use_offline_docs) {
 				const selection = vscode.window.activeTextEditor.document.getText(vscode.window.activeTextEditor.selection);
 				if (selection) {
 					const encodedSelection = encodeURI(selection);
@@ -93,7 +92,9 @@ export function activate(context: vscode.ExtensionContext) {
 						// vscode.env.openExternal(uri);
 						vscode.commands.executeCommand('vscode.open', uri);
 					} else {
-						offlineDocsManager.initialize(cfg.docsPath, cfg.extensionPath);
+						offlineDocsManager.initialize(cfg.docsPath, cfg.offline_docs_style_path)
+						.then(offlineDocsManager.loadDocs)
+						.then(()=>offlineDocsManager.launchDocs(runBuffered));
 						// launchProcess(cfg.docsPath, false);//https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword
 					}
 				});
@@ -104,7 +105,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand('ahk.docs-go-page', (element: string) => {
 			vscode.window.showInformationMessage('link ' + element);
 			let nPath = vscode.Uri.parse(element).with({ scheme: 'file' });
-			let destinationPath = nPath.fsPath.replace(/docs\\\.\./g,'docs');
+			let destinationPath = nPath.fsPath.replace(/docs\\\.\./g, 'docs');
 			offlineDocsManager.openTheDocsPanel(offlineDocsManager.lastOpenedPanelNumber, destinationPath);
 		}),
 
@@ -680,7 +681,7 @@ function saveIfNeededThenRun(run: (editor: vscode.TextEditor) => void) {
 
 	const editor = vscode.window.activeTextEditor;
 
-	if (editor.document.isDirty){
+	if (editor.document.isDirty) {
 		isSaveFromButtonRequest = true;
 		editor.document.save().then((result) => {
 			// isSaveFromButtonRequest = false;

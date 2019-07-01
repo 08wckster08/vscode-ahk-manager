@@ -255,3 +255,11 @@ pipe:= DllCall(
 ;Send ^v                             ; paste reformatted code
 return
 `;
+
+export const PerformOfflineDocsSearch = (docPath: string, command:string) => `
+Run ${docPath},,,pid
+WinWait ahk_pid %pid%
+C_Cmd = ${command}
+StringReplace, C_Cmd, C_Cmd, #, {#}
+Send, !n{home}+{end}%C_Cmd%{enter}
+`;

@@ -44,7 +44,7 @@ export const SETTINGS_KEYS: any = {
 	OpenScriptFoldersInNewInstance: "ahk.scriptFolders.openInNewInstance",
 	RunOnArgs: 'ahk.onArgs.run',
 	OnSearchUseOfflineDocs: 'ahk.onSearch.useAlwaysOfflineDocs',
-	OfflineDocsFullPath: 'ahk.overrideOfflineDocsFullPath'
+	OverrideOfflineDocsStylePath: 'ahk.overrideOfflineDocsStylePath'
 };
 
 export const DEFAULT_HEADER_SNIPPET_NAME = "Default Sublime Header";

@@ -252,11 +252,11 @@
 						"description": "Specify whether to open always an offline version of the docs",
 						"scope": "resource"
 					},
-					"ahk.overrideOfflineDocsFullPath": {
-						"title": "Override offline docs path",
+					"ahk.overrideOfflineDocsStylePath": {
+						"title": "Override offline docs stylesheet path",
 						"type": "string",
 						"default": "",
-						"description": "Set where to store the decompiled offline docs (if you leave it empty, %appdata% will be used instead)(the path mustn't contains spaces, because hh.exe doesn't like them)"
+						"description": "Set the alternative style.css path for the offline docs (leave it empty for loading the default style)"
 					},
 					"ahk.format.enabled": {
 						"title": "Enable sperimental formatter",
