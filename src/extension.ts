@@ -14,6 +14,8 @@ import { ScriptManagerProvider, Script } from './script-manager-provider';
 import { cfg } from './configuration';
 import { scriptCollection } from './script-meta-data-collection';
 
+let isSaveFromButtonRequest: boolean;
+
 export function activate(context: vscode.ExtensionContext) {
 
 	console.log(`${EXTENSION_NAME} is ready : let's script something awesome !`);
@@ -24,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 	var delayed_saving_timeout: NodeJS.Timer;
 	let treeDataProvider: ScriptManagerProvider;
 	let scriptViewer: vscode.TreeView<Script>;
-
+	isSaveFromButtonRequest = false;
 	cfg.parseConfiguration(vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === "ahk" ? vscode.window.activeTextEditor.document.uri : undefined);
 	if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document.languageId === 'ahk')
 		cfg.initializeEmptyWithHeaderSnippetIfNeeded(vscode.window.activeTextEditor.document.getText().length);
@@ -58,6 +60,10 @@ export function activate(context: vscode.ExtensionContext) {
 				clearTimeout(delayed_saving_timeout);
 
 			delayed_saving_timeout = setTimeout(() => {
+				if(isSaveFromButtonRequest) {
+					isSaveFromButtonRequest = false;
+					return;
+				}
 				if (cfg.compile_on_save && compiled_scripts.includes(e.uri.fsPath)) {
 					vscode.commands.executeCommand(COMMAND_IDS.KILL);
 					vscode.commands.executeCommand(COMMAND_IDS.COMPILE);
@@ -219,7 +225,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.RUNBUFFERED, () => {
-			saveIfNeededThenRun(()=>runBuffered(getValidSelectedText()));
+			saveIfNeededThenRun(() => runBuffered(getValidSelectedText()));
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.SET_TRAY_ICON, () => {
@@ -651,13 +657,17 @@ export function activate(context: vscode.ExtensionContext) {
 function saveIfNeededThenRun(run: (editor: vscode.TextEditor) => void) {
 	if (!vscode.window.activeTextEditor)
 		return;
+
 	const editor = vscode.window.activeTextEditor;
 
-	if (editor.document.isDirty)
+	if (editor.document.isDirty){
+		isSaveFromButtonRequest = true;
 		editor.document.save().then((result) => {
+			// isSaveFromButtonRequest = false;
 			if (result)
 				run(editor);
 		});
+	}
 	else
 		run(editor);
 }
