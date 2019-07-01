@@ -20,6 +20,8 @@ export class OfflineDocsManager {
     private isDocsPanelDisposed: boolean = false;
     private updateDocsTimeout: NodeJS.Timeout | undefined;
 
+    public lastOpenedPanelNumber: number = 2;
+
     constructor() {
         this.docsDirectoryPath = path.join(process.env.APPDATA || 'C:/', EXTENSION_NAME, 'Docs');
         this.docsIndexPath = path.join(this.docsDirectoryPath, DOCS_INDEX);
@@ -93,15 +95,14 @@ export class OfflineDocsManager {
                     progress.report({ message: 'data parsed' });
                     this.isCollectionLoaded = true;
                     progress.report({ message: 'docs ready !' });
-                    this.openTheDocsPanel(vscode.window.visibleTextEditors.length + 1);
+                    this.openTheDocsPanel(vscode.window.visibleTextEditors.length + 1, path.join(this.docsDirectoryPath, 'docs', 'Hotkeys.htm'));
                 }).catch((ex) => vscode.window.showErrorMessage('Unable to load ahk\'s docs ' + ex));
             });
         }
     }
 
-
-    openTheDocsPanel(column: number) {
-
+    public openTheDocsPanel(column: number, pagePath: string) {
+        this.lastOpenedPanelNumber = column;
         if (!this.docsPanel || this.isDocsPanelDisposed) {
             this.docsPanel = vscode.window.createWebviewPanel('ahk-offline-docs', 'Documentation', { viewColumn: vscode.ViewColumn.Two, preserveFocus: true }, {
                 enableScripts: true,
@@ -121,7 +122,7 @@ export class OfflineDocsManager {
             clearTimeout(this.updateDocsTimeout);
         this.updateDocsTimeout = setTimeout(() => {
             if (!this.isDocsPanelDisposed)
-                fs.readFile(path.join(this.docsDirectoryPath, 'docs', 'Hotkeys.htm'), { encoding: "utf-8" }, (err, data) => {
+                fs.readFile(pagePath, { encoding: "utf-8" }, (err, data) => {
                     if (!this.docsPanel)
                         return;
                     if (err) {
@@ -135,14 +136,18 @@ export class OfflineDocsManager {
                     for (let i = 0; i < len; i++) {
                         const a = aTags[i];
                         if (!a.href.includes('about:blank')) {
-                            const commentCommandUri = vscode.Uri.parse(`command:ahk.spy`);
-                            a.href = basePath + a.href;
+                            // const commentCommandUri = vscode.Uri.parse(`command:ahk.spy`);
+                            const commentCommandUri = vscode.Uri.parse(
+                                `command:ahk.docs-go-page?${encodeURIComponent(JSON.stringify(basePath + a.href))}`
+                            );
+                            // a.href = basePath + a.href;
+                            a.href = commentCommandUri.toString();
                             // a.removeAttribute('href');
                             // a.setAttribute('onclick', '{command:ahk.spy}');
                         }
                     }
-                    let ser = dom.serialize();
-                    this.docsPanel.webview.html = /*data/*ser*/ser.toString().replace('<head>', `<head>\n<base href="${url.toString()}/">`);
+                    let html = dom.serialize();
+                    this.docsPanel.webview.html = /*data/*ser*/html.toString().replace('<head>', `<head>\n<base href="${url.toString()}/">`);
                 });
         }, 2000);
 
