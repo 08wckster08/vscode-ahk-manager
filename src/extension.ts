@@ -93,8 +93,8 @@ export function activate(context: vscode.ExtensionContext) {
 						vscode.commands.executeCommand('vscode.open', uri);
 					} else {
 						offlineDocsManager.initialize(cfg.docsPath, cfg.offline_docs_style_path)
-						.then(offlineDocsManager.loadDocs)
-						.then(()=>offlineDocsManager.launchDocs(runBuffered));
+							.then(offlineDocsManager.loadDocs)
+							.then(() => offlineDocsManager.launchDocs(cfg.docsPath, runBuffered));
 						// launchProcess(cfg.docsPath, false);//https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword
 					}
 				});

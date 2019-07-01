@@ -257,9 +257,39 @@ return
 `;
 
 export const PerformOfflineDocsSearch = (docPath: string, command:string) => `
-Run ${docPath},,,pid
-WinWait ahk_pid %pid%
+DetectHiddenWindows, On
+WinGet, IDList ,List, AutoHotkey Help
+
+id=-1
+Loop %IDList%
+{
+    IDk:=IDList%A_Index%
+    if(id == -1)
+        id := IDk
+    else
+        WinWaitClose, ahk_id %IDk% ;kill
+}
+
+pid = -1
+if(id != -1){
+  WinGet, PID, pid,   % "ahk_id " id
+}
+if(pid == -1){
+  Run ${docPath},,,pid
+  WinWait ahk_pid %pid%
+}
+else{
+  WinRestore, ahk_pid %pid%
+  WinActivate, ahk_pid %pid%
+  WinWaitActive, ahk_pid %pid%
+}
+;Sleep, 1000
+;MsgBox, hey
 C_Cmd = ${command}
 StringReplace, C_Cmd, C_Cmd, #, {#}
 Send, !n{home}+{end}%C_Cmd%{enter}
+Sleep, 1000
+Send, #{right}
+Sleep, 800
+Send, {Enter}
 `;

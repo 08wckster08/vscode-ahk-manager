@@ -100,17 +100,15 @@ This extension contributes the following settings:
 * [ ] formatter ?
 * [ ] remember launched scripts from history so you could also launch them from an ahk.manager secondary treeview (like extension treeviews)
 * [X] better offline docs
-  * [] adding command for copying the default style
   * [] improve line parsing
-  * [] browser to the side ?
 
 ## Release Notes
 
 ### 0.0.5
 
 * BugFix: with `ahk.OnSave.Run` and `ahk.OnSave.Compile` and a click of a button scripts get executed twice.
-* Preview : the offline docs can be viewed in the browser when `ahk.onSearch.useAlwaysOfflineDocs` is set.
-  * a new settings `ahk.overrideOfflineDocsStylePath` is available
+* Preview : the offline docs can be filtered when `ahk.onSearch.useAlwaysOfflineDocs` is set and editor has selection.
+  * the docs will be aligned to the rigth side
 
 ### 0.0.4
 

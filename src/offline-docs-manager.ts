@@ -121,15 +121,15 @@ export class OfflineDocsManager {
     /**
      * launchDocs
      */
-    public launchDocs(runBuffered: (buffer: string) => void) {
+    public launchDocs(docsPath: string, runBuffered: (buffer: string) => void) {
         let input = this.getInput();
         if (input instanceof Promise) {
             input.then((r) => {
-                let command = PerformOfflineDocsSearch(path.join(this.docsDirectoryPath, 'docs', 'Welcome.htm'), r);
+                let command = PerformOfflineDocsSearch(docsPath, r);//path.join(this.docsDirectoryPath, 'docs', 'Welcome.htm'),
                 runBuffered(command);
             });
         } else {
-            let command = PerformOfflineDocsSearch(path.join(this.docsDirectoryPath, 'docs', 'Welcome.htm'), input);
+            let command = PerformOfflineDocsSearch(docsPath, input);//path.join(this.docsDirectoryPath, 'docs', 'Welcome.htm')
             runBuffered(command);
         }
     }
@@ -272,7 +272,7 @@ export class OfflineDocsManager {
         let parts = content.split(/[\.,({\[\]})\s]/g);
         if (!parts)
             return '';
-        if(parts.length === 1){
+        if (parts.length === 1) {
             return parts[0];
         }
         let promise: Promise<string> = new Promise<string>((r, c) => {
