@@ -129,16 +129,20 @@ export class OfflineDocsManager {
                         vscode.window.showErrorMessage('An error has occured while opening the page: ' + err);
                     }
                     let url = vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs/')).with({ scheme: 'vscode-resource' });
-                    const dom = new JSDOM(data, { runScripts: "dangerously" });
+                    const dom = new JSDOM(data.replace('<head>', `<head>\n<base href="${url.toString()}/">`), { runScripts: "dangerously", url: vscode.Uri.file(pagePath).toString() });
                     const aTags = dom.window.document.getElementsByTagName('a');
                     const len = aTags.length;
                     const basePath = url.toString();
                     for (let i = 0; i < len; i++) {
                         const a = aTags[i];
-                        if (!a.href.includes('about:blank')) {
+                        if (
+                            !a.href.includes('about:blank') &&
+                            !a.href.includes('http:') &&
+                            !a.href.includes('https:') &&
+                            !a.href.includes('//#')) {
                             // const commentCommandUri = vscode.Uri.parse(`command:ahk.spy`);
                             const commentCommandUri = vscode.Uri.parse(
-                                `command:ahk.docs-go-page?${encodeURIComponent(JSON.stringify(basePath + a.href))}`
+                                `command:ahk.docs-go-page?${encodeURIComponent(JSON.stringify(a.href))}`
                             );
                             // a.href = basePath + a.href;
                             a.href = commentCommandUri.toString();
@@ -147,7 +151,7 @@ export class OfflineDocsManager {
                         }
                     }
                     let html = dom.serialize();
-                    this.docsPanel.webview.html = /*data/*ser*/html.toString().replace('<head>', `<head>\n<base href="${url.toString()}/">`);
+                    this.docsPanel.webview.html = /*data/*ser*/html.toString();
                 });
         }, 2000);
 
