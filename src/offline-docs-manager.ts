@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as http from "https";
 import * as path from "path";
 import { EXTENSION_NAME, DOCS_INDEX } from "./enums";
 import { launchProcess } from "./process-utils";
@@ -9,6 +10,8 @@ import { PerformOfflineDocsSearch } from "./panic";
 
 export class OfflineDocsManager {
     private docsDirectoryPath: string;
+
+    private browserPath: string;
 
     private docsThemePath: string;
     private docsOverriddenThemePath: string | undefined;
@@ -33,6 +36,7 @@ export class OfflineDocsManager {
         this.docsIndexPath = path.join(this.docsDirectoryPath, DOCS_INDEX);
         this.docsThemePath = path.join(this.docsDirectoryPath, 'docs', 'static', 'theme.css');
         this.docsDefaultThemePath = path.join(this.docsDirectoryPath, 'docs', 'theme.css');
+        this.browserPath = path.join(this.docsDirectoryPath, 'AutoHotkeyBrowser.exe');
     }
 
     /**
@@ -74,6 +78,35 @@ export class OfflineDocsManager {
                 r(true);//this.loadDocs(overriddenStylePath);
         });
         return p;
+    }
+
+    public loadBrowser(): Promise<boolean> {
+        return new Promise<boolean>((rp, cp) => {
+            if (fs.existsSync(offlineDocsManager.browserPath)) {
+                rp(true);
+                return;
+            }
+            vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: "Downloading the AutoHotkeyBrowser",
+            }, (progress, token) => {
+                return new Promise<boolean>((r, c) => {
+                    const link = 'https://github.com/Denis-net/AutoHotkeyBrowser/blob/master/AutoHotkeyBrowser/bin/Debug/AutoHotkeyBrowser.exe';
+                    const dest = offlineDocsManager.browserPath;
+                    var file = fs.createWriteStream(dest);
+                    var request = http.get(link, function (response) {
+                        response.pipe(file);
+                        file.on('finish', function () {
+                            file.close();  // close() is async, call cb after close completes.
+                            r(true);
+                        });
+                    }).on('error', function (err) { // Handle errors
+                        fs.unlinkSync(dest); // Delete the file async. (But we don't check the result)
+                        c(err.message);
+                    });
+                });
+            }).then(rp);
+        });
     }
 
     public loadDocs(): Promise<boolean> {

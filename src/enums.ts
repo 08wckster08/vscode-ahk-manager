@@ -43,7 +43,7 @@ export const SETTINGS_KEYS: any = {
 	OnSearchTargetBrowser: "ahk.onSearch.targetBrowser",
 	OpenScriptFoldersInNewInstance: "ahk.scriptFolders.openInNewInstance",
 	RunOnArgs: 'ahk.onArgs.run',
-	OnSearchUseOfflineDocs: 'ahk.onSearch.useAlwaysOfflineDocs',
+	DocsStyle: 'ahk.onSearch.docsStyle',
 	OverrideOfflineDocsStylePath: 'ahk.overrideOfflineDocsStylePath'
 };
 
@@ -53,3 +53,10 @@ export const REVEAL_FILE_IN_OS = "Reveal file in OS";
 export const LAUNCH = "Launch now";
 
 export const DOCS_INDEX = 'index.hhk';
+
+
+export const enum DOCS_STYLES {
+	online = 'online',
+	chm = 'chm',
+	html = 'html'
+}

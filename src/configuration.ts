@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { SETTINGS_KEYS, DEFAULT_HEADER_SNIPPET_NAME } from './enums';
+import { SETTINGS_KEYS, DEFAULT_HEADER_SNIPPET_NAME, DOCS_STYLES } from './enums';
 import { scriptCollection } from './script-meta-data-collection';
 import { pathify } from "./file-utils";
 
@@ -16,7 +16,7 @@ export class Configuration {
     public open_script_folders_in_new_instance: boolean = true;
     public on_search_query_template: string = "";
     public on_search_target_browser: string = "";
-    public on_search_use_offline_docs: boolean = false;
+    public on_search_docs_style: string = DOCS_STYLES.online;
     public offline_docs_style_path: string = "";
 
     public compile_on_save: boolean = false;
@@ -62,7 +62,7 @@ export class Configuration {
 
             this.on_search_target_browser = configuration.get(SETTINGS_KEYS.OnSearchTargetBrowser) || "";
             this.on_search_query_template = configuration.get(SETTINGS_KEYS.OnSearchQueryTemplate) || "";
-            this.on_search_use_offline_docs = configuration.get(SETTINGS_KEYS.OnSearchUseOfflineDocs, false);
+            this.on_search_docs_style = configuration.get(SETTINGS_KEYS.DocsStyle, DOCS_STYLES.online);
             this.offline_docs_style_path = configuration.get(SETTINGS_KEYS.OverrideOfflineDocsStylePath, "");
 
             this.open_script_folders_in_new_instance = configuration.get(SETTINGS_KEYS.OpenScriptFoldersInNewInstance, true);

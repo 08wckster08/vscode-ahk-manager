@@ -10,7 +10,7 @@ import { offlineDocsManager } from './offline-docs-manager';
 import * as net from 'net';
 import * as panic from './panic';
 import { checkConnection } from './connectivity';
-import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH, EXTENSION_NAME, SETTINGS_KEYS } from './enums';
+import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH, EXTENSION_NAME, SETTINGS_KEYS, DOCS_STYLES } from './enums';
 import { ScriptManagerProvider, Script } from './script-manager-provider';
 import { cfg } from './configuration';
 import { scriptCollection } from './script-meta-data-collection';
@@ -77,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.DOCS, () => {
-			if (vscode.window.activeTextEditor && !vscode.window.activeTextEditor.selection.isEmpty && !cfg.on_search_use_offline_docs) {
+			if (vscode.window.activeTextEditor && !vscode.window.activeTextEditor.selection.isEmpty && cfg.on_search_docs_style === DOCS_STYLES.online) {
 				const selection = vscode.window.activeTextEditor.document.getText(vscode.window.activeTextEditor.selection);
 				if (selection) {
 					const encodedSelection = encodeURI(selection);
@@ -87,14 +87,22 @@ export function activate(context: vscode.ExtensionContext) {
 			else if (cfg.docsPath) {
 				// const docs = cfg.docsPath;
 				checkConnection((online) => {
-					if (online && !cfg.on_search_use_offline_docs) {
+					if (online && cfg.on_search_docs_style === DOCS_STYLES.online) {
 						const uri = vscode.Uri.parse('https://www.autohotkey.com/docs/AutoHotkey.htm');
 						// vscode.env.openExternal(uri);
 						vscode.commands.executeCommand('vscode.open', uri);
 					} else {
-						offlineDocsManager.initialize(cfg.docsPath, cfg.offline_docs_style_path)
-							.then(offlineDocsManager.loadDocs)
-							.then(() => offlineDocsManager.launchDocs(cfg.docsPath, runBuffered));
+
+						if (cfg.on_search_docs_style === DOCS_STYLES.html) {
+
+							offlineDocsManager.initialize(cfg.docsPath, cfg.offline_docs_style_path)
+								.then(offlineDocsManager.loadDocs)
+								.then(offlineDocsManager.loadBrowser)
+								.then(() => offlineDocsManager.launchDocs(cfg.docsPath, runBuffered));
+						}
+						else {
+							offlineDocsManager.launchDocs(cfg.docsPath, runBuffered);
+						}
 						// launchProcess(cfg.docsPath, false);//https://stackoverflow.com/questions/30844427/calling-html-help-from-command-prompt-with-keyword
 					}
 				});

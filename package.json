@@ -245,11 +245,21 @@
 						"description": "Specify the browser used in `ahk.docs` command with selections. (see https://github.com/sindresorhus/open)",
 						"scope": "resource"
 					},
-					"ahk.onSearch.useAlwaysOfflineDocs": {
-						"title": "Use Always Offline Docs",
-						"type": "boolean",
+					"ahk.onSearch.docsStyle": {
+						"title": "Docs Style",
+						"type": "string",
+						"enum": [
+							"online",
+							"chm",
+							"html"
+						],
+						"enumDescriptions": [
+							"search with the browser on line (enable targetBrowser and queryTemplate settings)",
+							"open the chm and automatically search for the selected keyword (faster)",
+							"open a dedicated offline browser (enable overrideOfflineDocsStylePath setting)(coming soon) "
+						],
 						"default": false,
-						"description": "Specify whether to open always an offline version of the docs",
+						"description": "Specify with what style open the docs.",
 						"scope": "resource"
 					},
 					"ahk.overrideOfflineDocsStylePath": {
