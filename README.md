@@ -100,6 +100,8 @@ This extension contributes the following settings:
 * [ ] formatter ?
 * [ ] remember launched scripts from history so you could also launch them from an ahk.manager secondary treeview (like extension treeviews)
 * [X] better offline docs
+  * [X] [dedicated browser](https://github.com/Denis-net/AutoHotkeyBrowser)
+    * [] integration with the dedicated browser
   * [] improve line parsing
 
 ## Release Notes
@@ -107,7 +109,12 @@ This extension contributes the following settings:
 ### 0.0.5
 
 * BugFix: with `ahk.OnSave.Run` and `ahk.OnSave.Compile` and a click of a button scripts get executed twice.
-* Preview : the offline docs can be filtered when `ahk.onSearch.useAlwaysOfflineDocs` is set and editor has selection.
+* Renamed `ahk.onSearch.useAlwaysOfflineDocs` to `ahk.docsStyle`
+  * `ahk.docsStyle` could be set:
+    * online : for browser searches
+    * chm: a chm will be opened and an automatic search will be performed
+    * html: (coming soon) will use a dedicated browser, which will allow custom theme
+* Preview : the offline docs can be filtered when `ahk.onSearch.docsStyle` is set to `chm` and editor has selection.
   * the docs will be aligned to the rigth side
 
 ### 0.0.4
