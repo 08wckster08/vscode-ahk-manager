@@ -10,7 +10,7 @@ import { offlineDocsManager } from './offline-docs-manager';
 import * as net from 'net';
 import * as panic from './panic';
 import { checkConnection } from './connectivity';
-import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH, EXTENSION_NAME, SETTINGS_KEYS, DOCS_STYLES } from './enums';
+import { COMMAND_IDS, REVEAL_FILE_IN_OS, LAUNCH, EXTENSION_NAME, SETTINGS_KEYS, DOCS_STYLES, OFFLINE_DOCS_BROWSER_TITLE } from './enums';
 import { ScriptManagerProvider, Script } from './script-manager-provider';
 import { cfg } from './configuration';
 import { scriptCollection } from './script-meta-data-collection';
@@ -95,10 +95,13 @@ export function activate(context: vscode.ExtensionContext) {
 
 						if (cfg.on_search_docs_style === DOCS_STYLES.html) {
 
-							offlineDocsManager.initialize(cfg.docsPath, cfg.offline_docs_style_path)
-								.then(offlineDocsManager.loadDocs)
-								.then(offlineDocsManager.loadBrowser)
-								.then(() => offlineDocsManager.launchDocs(cfg.docsPath, runBuffered));
+							treeDataProvider.ExecuteAHKCode(cfg.executablePath, (pipe) => panic.CheckIfWinExists(pipe, OFFLINE_DOCS_BROWSER_TITLE), (err) => vscode.window.showErrorMessage(err), true, (data) => {
+								let exist: boolean = data.toString() !== '0x0';
+								offlineDocsManager.initialize(cfg.docsPath, cfg.offline_docs_style_path)
+									.then(offlineDocsManager.loadDocs)
+									.then(offlineDocsManager.loadBrowser)
+									.then(() => offlineDocsManager.browseDocs(exist, runBuffered));
+							});
 						}
 						else {
 							offlineDocsManager.launchDocs(cfg.docsPath, runBuffered);
@@ -362,6 +365,11 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(COMMAND_IDS.REMOVE_OFFLINE_DOCS, () => {
 			offlineDocsManager.clear();
 		}),
+		vscode.commands.registerCommand(COMMAND_IDS.PASTE_DEFAULT_DOCS_STYLE, () => {
+			//TODO continue
+			// vscode.window.showTextDocument
+			// offlineDocsManager.getDefaultStyle();
+		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.REFRESH, (element: Script) => {
 			treeDataProvider.refresh();
@@ -480,6 +488,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 		return buffer;
 	}
+
 
 	// function launchProcess(name: string, quiet: boolean, ...args: string[]): Promise<boolean> {
 	// 	let p: Promise<boolean> = new Promise((r, c) => {

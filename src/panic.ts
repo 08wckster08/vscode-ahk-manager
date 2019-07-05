@@ -256,46 +256,6 @@ pipe:= DllCall(
 return
 `;
 
-// export const PerformOfflineDocsSearch = (docPath: string, command:string) => `
-// DetectHiddenWindows, On
-// WinGet, IDList ,List, AutoHotkey Help
-
-// id=-1
-// Loop %IDList%
-// {
-//     IDk:=IDList%A_Index%
-//     if(id == -1)
-//         id := IDk
-//     else{
-//           WinClose, ahk_id %ID%
-//           WinWaitClose, ahk_id %IDk% ;kill
-//         }
-// }
-
-// pid = -1
-// if(id != -1){
-//   WinGet, PID, pid,   % "ahk_id " id
-// }
-// if(pid == -1){
-//   Run ${docPath},,,pid
-//   WinWait ahk_pid %pid%
-// }
-// else{
-//   WinRestore, ahk_pid %pid%
-//   WinActivate, ahk_pid %pid%
-//   WinWaitActive, ahk_pid %pid%
-// }
-// ;Sleep, 1000
-// ;MsgBox, hey
-// C_Cmd = ${command}
-// StringReplace, C_Cmd, C_Cmd, #, {#}
-// Send, !n{home}+{end}%C_Cmd%{enter}
-// Sleep, 1000
-// Send, #{right}
-// Sleep, 800
-// Send, {Enter}
-// `;
-
 export const PerformOfflineDocsSearch = (docPath: string, command: string) => `
 DetectHiddenWindows, On
 WinGet, IDList ,List, AutoHotkey Help
@@ -319,3 +279,38 @@ Sleep, 1000
 Send, #{right}
 Sleep, 800
 Send, {Enter}`;
+
+export const SnapWindowToRigth = (title: string) => `
+DetectHiddenWindows, On
+IfWinNotExist, ahk_exe ${title}
+WinWait, ahk_exe ${title}
+WinActivate
+Sleep, 1000
+Send, #{right}
+Sleep, 800
+Send, {Enter}`;
+
+export const CheckIfWinExists = (pipe: string, winTitle: string) => `
+
+out := WinExist("${winTitle}")
+
+pipe:= DllCall(
+  (Join, Q C
+    "CreateFile"                 ; http://goo.gl/3aJQg7
+    "Str",  "${pipe}"            ; lpName
+    "UInt", 0x40000000           ; iWrite
+    "UInt", 0x1|0x2                    ; iShare
+    "UInt",  0                    ;
+    "UInt", 3                    ; iOpen
+    "UInt", 0                    ; nInBufferSize
+    "UInt",  0                    ; nDefaultTimeOut
+  ))
+  if(pipe = -1)
+    MsgBox WriteFile failed: %ErrorLevel%/%A_LastError%
+
+  if (f := FileOpen(pipe, "h", UTF-8))
+  {
+    f.Write(out)
+    f.Close(), DllCall("CloseHandle", "Ptr", pipe)
+  }
+`;

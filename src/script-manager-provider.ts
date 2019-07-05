@@ -79,6 +79,10 @@ export class ScriptManagerProvider implements vscode.TreeDataProvider<Script>{
     }
 
     public ExecuteAHKCode(executablePath: string, request_callback: (pipe: string) => string, error_callback?: (error: any) => void, waitForResponse: boolean = false, response_callback?: (data: Buffer) => void) {
+        ScriptManagerProvider.ExecuteAHKCode(executablePath, request_callback, error_callback, waitForResponse, response_callback);
+    }
+
+    public static ExecuteAHKCode(executablePath: string, request_callback: (pipe: string) => string, error_callback?: (error: any) => void, waitForResponse: boolean = false, response_callback?: (data: Buffer) => void) {
         try {
             const pipe_path = "\\\\.\\pipe\\AHK_" + Date.now();
             let connection_phase: ConnectionPhases = ConnectionPhases.GetAttribute;

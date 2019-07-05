@@ -1,17 +1,21 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
+import * as dgram from "dgram";
 import * as http from "https";
 import * as path from "path";
-import { EXTENSION_NAME, DOCS_INDEX } from "./enums";
+import * as portfinder from "portfinder";
+import { EXTENSION_NAME, DOCS_INDEX, BROWSER_EXECUTABLE_NAME } from "./enums";
 import { launchProcess } from "./process-utils";
 import { readFile, pathify } from "./file-utils";
 import { JSDOM } from 'jsdom';
-import { PerformOfflineDocsSearch } from "./panic";
+import { PerformOfflineDocsSearch, SnapWindowToRigth } from "./panic";
+import { ScriptManagerProvider } from "./script-manager-provider";
 
 export class OfflineDocsManager {
     private docsDirectoryPath: string;
 
     private browserPath: string;
+    private udp_port: number = 0;
 
     private docsThemePath: string;
     private docsOverriddenThemePath: string | undefined;
@@ -36,7 +40,7 @@ export class OfflineDocsManager {
         this.docsIndexPath = path.join(this.docsDirectoryPath, DOCS_INDEX);
         this.docsThemePath = path.join(this.docsDirectoryPath, 'docs', 'static', 'theme.css');
         this.docsDefaultThemePath = path.join(this.docsDirectoryPath, 'docs', 'theme.css');
-        this.browserPath = path.join(this.docsDirectoryPath, 'AutoHotkeyBrowser.exe');
+        this.browserPath = path.join(this.docsDirectoryPath, BROWSER_EXECUTABLE_NAME);
     }
 
     /**
@@ -83,15 +87,21 @@ export class OfflineDocsManager {
     public loadBrowser(): Promise<boolean> {
         return new Promise<boolean>((rp, cp) => {
             if (fs.existsSync(offlineDocsManager.browserPath)) {
-                rp(true);
-                return;
+                const creation_time = fs.statSync(offlineDocsManager.browserPath).birthtime;
+                const last_push_time = new Date(2019, 6, 4); //month is 0 based
+                if (creation_time > last_push_time) {
+                    rp(true);
+                    return;
+                }
+                else
+                    fs.unlinkSync(offlineDocsManager.browserPath);
             }
             vscode.window.withProgress({
                 location: vscode.ProgressLocation.Notification,
                 title: "Downloading the AutoHotkeyBrowser",
             }, (progress, token) => {
                 return new Promise<boolean>((r, c) => {
-                    const link = 'https://github.com/Denis-net/AutoHotkeyBrowser/blob/master/AutoHotkeyBrowser/bin/Debug/AutoHotkeyBrowser.exe';
+                    const link = 'https://raw.githubusercontent.com/Denis-net/AutoHotkeyBrowser/master/AutoHotkeyBrowser/bin/Debug/AutoHotkeyBrowser.exe';
                     const dest = offlineDocsManager.browserPath;
                     var file = fs.createWriteStream(dest);
                     var request = http.get(link, function (response) {
@@ -149,6 +159,62 @@ export class OfflineDocsManager {
                 });
             }
         });
+    }
+
+    /**
+     * browseDocs
+     */
+    public browseDocs(isAlreadyOpened: boolean, runBuffered: (buffer: string) => void) {
+        let input = this.getInput();
+        if (input instanceof Promise) {
+            input.then((r) => {
+                this.searchWithBrowser(isAlreadyOpened, r, runBuffered);
+            });
+        } else {
+            this.searchWithBrowser(isAlreadyOpened, input, runBuffered);
+        }
+    }
+
+    /**
+     * searchWithBrowser
+        * CommandLine Arguments:
+        * [0] #Program_Name
+        * [1] Url
+        * [2] Keyword
+        * [3] UDP_Port
+        * [4] Parent_Pid
+     */
+    public searchWithBrowser(isAlreadyOpened: boolean, keyword: string, runBuffered: (buffer: string) => void) {
+        var url = path.join(this.docsDirectoryPath, 'docs\\Welcome.htm');
+
+        if (this.udp_port === 0 && isAlreadyOpened) {
+            launchProcess('taskkill.exe', false, '/F', '/IM', BROWSER_EXECUTABLE_NAME, '/T');
+            isAlreadyOpened = false;
+        }
+
+        if (this.udp_port === 0) {
+            portfinder.getPorts(3, { host: 'localhost', port: 5000, startPort: 6000 }, (e, ports) => {
+                if (e) {
+                    vscode.window.showErrorMessage("can't find free port...");
+                    return;
+                }
+                this.udp_port = ports[0];
+                this.searchWithBrowser(isAlreadyOpened, keyword, runBuffered);
+            });
+        } else if (!isAlreadyOpened) {
+            launchProcess(this.browserPath, false, pathify(url), JSON.stringify(keyword), this.udp_port.toString(), process.pid.toString());
+            runBuffered(SnapWindowToRigth(BROWSER_EXECUTABLE_NAME));
+        }
+        else {
+            const message = Buffer.from(keyword);
+            const client = dgram.createSocket('udp4');
+            client.send(message, this.udp_port, '127.0.0.1', (err) => {
+                if (err) {
+                    vscode.window.showErrorMessage('An error has occured while interacting with the doc: ', err.message);
+                }
+                client.close();
+            });
+        }
     }
 
     /**

@@ -97,6 +97,12 @@
 				"enablement": "resourceLangId == ahk"
 			},
 			{
+				"command": "ahk.paste-default-docs-style",
+				"title": "Paste Default Docs Style",
+				"category": "AHK",
+				"enablement": "resourceLangId == ahk"
+			},
+			{
 				"command": "ahk.set-tray-icon",
 				"title": "Set the script's tray icon",
 				"category": "AHK",
@@ -438,6 +444,7 @@
 	},
 	"dependencies": {
 		"jsdom": "^15.1.1",
-		"open": "^6.3.0"
+		"open": "^6.3.0",
+		"portfinder": "^1.0.20"
 	}
 }
