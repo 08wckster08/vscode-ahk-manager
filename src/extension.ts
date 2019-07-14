@@ -365,10 +365,26 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(COMMAND_IDS.REMOVE_OFFLINE_DOCS, () => {
 			offlineDocsManager.clear();
 		}),
+
 		vscode.commands.registerCommand(COMMAND_IDS.PASTE_DEFAULT_DOCS_STYLE, () => {
-			//TODO continue
-			// vscode.window.showTextDocument
-			// offlineDocsManager.getDefaultStyle();
+			try {
+				offlineDocsManager.getDefaultStyle().then((data) => {
+					vscode.workspace.openTextDocument({ language: "css", content: data }).then((doc) => {
+						if (vscode.window.activeTextEditor !== undefined && vscode.window.activeTextEditor.document.languageId === 'css' && vscode.window.activeTextEditor.document.getText().length === 0) {
+							// const textDocument = vscode.window.activeTextEditor.document;
+							vscode.window.activeTextEditor.edit((builder) => {
+								// let invalidRange = new vscode.Range(0, 0, textDocument.lineCount /*intentionally missing the '-1' */, 0);
+								// let fullRange = textDocument.validateRange(invalidRange);
+								builder.replace(new vscode.Range(0,0,0,0), data);
+							});
+						}
+						else
+							vscode.window.showTextDocument(doc, vscode.ViewColumn.Active);
+					});
+				}).catch((err) => vscode.window.showErrorMessage('An Error has occured while getting the default style: ' + err));
+			} catch (err) {
+				vscode.window.showErrorMessage('An Error has occured while overriding the default style: ' + err);
+			}
 		}),
 
 		vscode.commands.registerCommand(COMMAND_IDS.TREE_COMMANDS.REFRESH, (element: Script) => {

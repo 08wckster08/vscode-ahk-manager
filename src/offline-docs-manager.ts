@@ -301,6 +301,17 @@ export class OfflineDocsManager {
         //     });
     }
 
+    public getDefaultStyle(): Promise<string> {
+        return new Promise((r,c)=>{
+            fs.readFile(offlineDocsManager.docsDefaultThemePath,(err,data)=>{
+                if(err)
+                    c(err);
+                else
+                    r(data.toString());
+            });
+        });
+	}
+
     public clear() {
         if (this.isCollectionLoaded) {
             // if (this.current) {
@@ -381,7 +392,6 @@ export class OfflineDocsManager {
         });
         return promise;
     }
-
 }
 
 
