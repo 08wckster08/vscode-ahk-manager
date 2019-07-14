@@ -370,12 +370,12 @@ export function activate(context: vscode.ExtensionContext) {
 			try {
 				offlineDocsManager.getDefaultStyle().then((data) => {
 					vscode.workspace.openTextDocument({ language: "css", content: data }).then((doc) => {
-						if (vscode.window.activeTextEditor !== undefined && vscode.window.activeTextEditor.document.languageId === 'css' && vscode.window.activeTextEditor.document.getText().length === 0) {
-							// const textDocument = vscode.window.activeTextEditor.document;
+						if (vscode.window.activeTextEditor !== undefined && vscode.window.activeTextEditor.document.languageId === 'css') { /*&& vscode.window.activeTextEditor.document.getText().length === 0*/
+							const textDocument = vscode.window.activeTextEditor;
 							vscode.window.activeTextEditor.edit((builder) => {
-								// let invalidRange = new vscode.Range(0, 0, textDocument.lineCount /*intentionally missing the '-1' */, 0);
-								// let fullRange = textDocument.validateRange(invalidRange);
-								builder.replace(new vscode.Range(0,0,0,0), data);
+								builder.insert(
+									new vscode.Position(textDocument.selection.active.line, textDocument.selection.active.character),
+									data);
 							});
 						}
 						else

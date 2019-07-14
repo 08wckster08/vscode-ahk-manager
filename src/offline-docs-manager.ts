@@ -302,15 +302,15 @@ export class OfflineDocsManager {
     }
 
     public getDefaultStyle(): Promise<string> {
-        return new Promise((r,c)=>{
-            fs.readFile(offlineDocsManager.docsDefaultThemePath,(err,data)=>{
-                if(err)
+        return new Promise((r, c) => {
+            fs.readFile(offlineDocsManager.docsDefaultThemePath, (err, data) => {
+                if (err)
                     c(err);
                 else
                     r(data.toString());
             });
         });
-	}
+    }
 
     public clear() {
         if (this.isCollectionLoaded) {
@@ -379,15 +379,30 @@ export class OfflineDocsManager {
 
     private tokenizeText(line: string): Promise<string> | string {
         let content = line.trim();
-        let parts = content.split(/[\.,({\[\]})\s]/g);
+        let parts = content.split(/[\.:,({\[\]})\s%]/g);
         if (!parts)
             return '';
         if (parts.length === 1) {
             return parts[0];
         }
+        parts = parts.filter(x => x.length > 0);
+        let usedParts = new Array();
+        const len = parts.length;
+        for (let i = 0; i < len; i++) {
+            if (!Number(parts[i]))
+                usedParts.push(parts[i]);
+        }
+
+        function onlyUnique(value: any, index: number, self: any[]) {
+            return self.indexOf(value) === index;
+        }
+        usedParts = usedParts.filter(onlyUnique);
         let promise: Promise<string> = new Promise<string>((r, c) => {
-            vscode.window.showQuickPick(parts, { placeHolder: 'Select the most intresting part' }).then((result) => {
-                r(result);
+            vscode.window.showQuickPick(usedParts, { placeHolder: 'Select the most intresting part' }).then((result) => {
+                if(result)
+                    r(result);
+                else
+                    c('User cancelled the operation');
             });
         });
         return promise;
