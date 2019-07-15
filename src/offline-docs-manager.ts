@@ -88,7 +88,7 @@ export class OfflineDocsManager {
         return new Promise<boolean>((rp, cp) => {
             if (fs.existsSync(offlineDocsManager.browserPath)) {
                 const creation_time = fs.statSync(offlineDocsManager.browserPath).birthtime;
-                const last_push_time = new Date(2019, 6, 4); //month is 0 based
+                const last_push_time = new Date(2019, 6, 14); //month is 0 based
                 if (creation_time > last_push_time) {
                     rp(true);
                     return;
