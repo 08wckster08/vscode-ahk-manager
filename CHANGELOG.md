@@ -2,6 +2,12 @@
 
 All notable changes to the "vscode-ahk-manager" extension will be documented in this file.
 
+## 0.0.7
+
+* Removed the default shortcuts.
+  * In the Know Issue section you'll find the proposed.
+    * Just open the VSC's Keyboard Shortcut, view code, paste them if you need.
+
 ## 0.0.6
 
 * Now the html doc works.
