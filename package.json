@@ -4,7 +4,7 @@
 	"description": "Helpful tools for working with AHK",
 	"publisher": "Denis-net",
 	"icon": "media/icon.png",
-	"version": "0.0.5",
+	"version": "0.0.7",
 	"repository": {
 		"url": "https://github.com/Denis-net/vscode-ahk-manager",
 		"type": "git"
@@ -358,73 +358,7 @@
 				}
 			]
 		},
-		"keybindings": [
-			{
-				"command": "ahk.compile",
-				"key": "ctrl+shift+b",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.compile-as",
-				"key": "ctrl+a ctrl+c",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.spy",
-				"key": "ctrl+a ctrl+s",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.run",
-				"key": "ctrl+a ctrl+r",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.run-compiled",
-				"key": "ctrl+a ctrl+shift+r",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.run-buffer",
-				"key": "ctrl+a ctrl+b",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.kill",
-				"key": "ctrl+a ctrl+k",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.docs",
-				"key": "ctrl+a ctrl+d",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.set-tray-icon",
-				"key": "ctrl+a ctrl+t",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.set-icon",
-				"key": "ctrl+a ctrl+i",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "ahk.set-script-arguments",
-				"key": "ctrl+a ctrl+g",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "editor.action.selectAll",
-				"key": "ctrl+a ctrl+a",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			},
-			{
-				"command": "workbench.view.extension.ahk-manager",
-				"key": "ctrl+shift+a",
-				"when": "resourceLangId == ahk && editorTextFocus"
-			}
-		]
+		"keybindings": []
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

@@ -2,7 +2,8 @@
 
 **Welcome** to my third [Extension](https://marketplace.visualstudio.com/items?itemName=Denis-net.vscode-ahk-manager) !
 
-> WARNING : This extension could cause serious addictions !!! 😜
+> Sometimes, the best thing to do is do nothing at all, or do some steps back until a better solution will came on the road. So I have disabled the shortcuts by default.\
+You can add your own combinations. (If you need the old ones scroll down to the Know Issues section, you'll find the old combinations and you could override them as you like.)
 
 ![manager](https://raw.githubusercontent.com/Denis-net/vscode-ahk-manager/master/media/vs-ahk-manager.gif)
 
@@ -90,6 +91,77 @@ This extension contributes the following settings:
 
 * Icons aren't great (you could hide buttons if you don't like them, you'll still be able to invoke commands through the command palette)
 * Side effect of the Shortcuts starting with `Ctrl`+`A` : the _select all_ don't get triggered, so I added this workaround : `Ctrl+A Ctrl+A` for selecting all text in .ahk files ... could still be awkward... you could think about better shorcut combinations and adjust them manually for getting the `Ctrl+A` working normally again.
+  * [Matt Bicket](https://github.com/poer-dev) was right, an extension must not interfere with the default text editor shortcuts. So I disabled the shortcuts. If you want them again, just open `workbench.action.openGlobalKeybindings`, view the code, copy/paste the list below
+
+``` JSON
+
+{
+				"command": "ahk.compile",
+				"key": "ctrl+shift+b",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.compile-as",
+				"key": "ctrl+a ctrl+c",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.spy",
+				"key": "ctrl+a ctrl+s",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.run",
+				"key": "ctrl+a ctrl+r",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.run-compiled",
+				"key": "ctrl+a ctrl+shift+r",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.run-buffer",
+				"key": "ctrl+a ctrl+b",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.kill",
+				"key": "ctrl+a ctrl+k",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.docs",
+				"key": "ctrl+a ctrl+d",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.set-tray-icon",
+				"key": "ctrl+a ctrl+t",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.set-icon",
+				"key": "ctrl+a ctrl+i",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "ahk.set-script-arguments",
+				"key": "ctrl+a ctrl+g",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "editor.action.selectAll",
+				"key": "ctrl+a ctrl+a",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			},
+			{
+				"command": "workbench.view.extension.ahk-manager",
+				"key": "ctrl+shift+a",
+				"when": "resourceLangId == ahk && editorTextFocus"
+			}
+```
+
 
 ## Further Updates
 
@@ -103,36 +175,6 @@ This extension contributes the following settings:
   * [X] [dedicated browser](https://github.com/Denis-net/AutoHotkeyBrowser)
     * [X] integration with the dedicated browser
   * [X] improve line parsing
-
-## Release Notes
-
-### 0.0.5
-
-* BugFix: with `ahk.OnSave.Run` and `ahk.OnSave.Compile` and a click of a button scripts get executed twice.
-* Renamed `ahk.onSearch.useAlwaysOfflineDocs` to `ahk.docsStyle`
-  * `ahk.docsStyle` could be set:
-    * online : for browser searches
-    * chm: a chm will be opened and an automatic search will be performed
-    * html: a dedicated browser window, which allow a custom theme to be defined (use `ahk.paste-default-docs-style`)
-* Preview : the offline docs can be filtered when `ahk.onSearch.docsStyle` is set to `chm` and editor has selection.
-  * the docs will be aligned to the rigth side
-
-### 0.0.4
-
-* BugFix: `ahk.kill` command may kill itself before killing other scripts...
-* Added `ahk.onSearch.useAlwaysOfflineDocs` (currently works only with no selected text)
-* Improved the `ahk.run-buffer` command UI experience
-* `ahk.run`,`ahk.compile` and `ahk.run-buffer` will save dirty script before operations
-* Found an intresting way of showing the offline docs
-
-### 0.0.3
-
-Improved the `ahk.kill` command: now it affects run-piped scripts too.
-(Thanks to [bugrobot](https://github.com/bugrobot) for having pointed this out to me).
-
-### 0.0.2
-
-Initial release of this extension.
 
 > This is just a preview, but I think that is good enough to be considered usable.
 
