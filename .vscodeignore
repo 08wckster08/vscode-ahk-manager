@@ -10,3 +10,5 @@ vsc-extension-quickstart.md
 **/*.ts
 **/*.vsix
 example/**
+node_modules/**
+dist
