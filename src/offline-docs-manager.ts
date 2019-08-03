@@ -7,9 +7,7 @@ import * as portfinder from "portfinder";
 import { EXTENSION_NAME, DOCS_INDEX, BROWSER_EXECUTABLE_NAME } from "./enums";
 import { launchProcess } from "./process-utils";
 import { readFile, pathify } from "./file-utils";
-import { JSDOM } from 'jsdom';
 import { PerformOfflineDocsSearch, SnapWindowToRigth } from "./panic";
-import { ScriptManagerProvider } from "./script-manager-provider";
 
 export class OfflineDocsManager {
     private docsDirectoryPath: string;
@@ -129,20 +127,20 @@ export class OfflineDocsManager {
                     offlineDocsManager.isCollectionLoaded = false;
                     return readFile(offlineDocsManager.docsIndexPath).then((data) => {
                         progress.report({ message: 'file loaded' });
-                        const dom = new JSDOM(data);
-                        offlineDocsManager.collection = new Array();
-                        if (dom) {
-                            var listItems = dom.window.document.getElementsByTagName('param');
-                            let lastName: string = '';
-                            for (let i = 0; i < listItems.length; i++) {
-                                const item = listItems[i];
-                                if (item.name === "Local") {
-                                    offlineDocsManager.collection.push(new OfflineDocItem('', lastName, item.value!.toString()));
-                                }
-                                else
-                                    lastName = item.value.toString();
-                            }
-                        }
+                        // const dom = new JSDOM(data);
+                        // offlineDocsManager.collection = new Array();
+                        // if (dom) {
+                            // var listItems = dom.window.document.getElementsByTagName('param');
+                            // let lastName: string = '';
+                            // for (let i = 0; i < listItems.length; i++) {
+                            //     const item = listItems[i];
+                            //     if (item.name === "Local") {
+                            //         offlineDocsManager.collection.push(new OfflineDocItem('', lastName, item.value!.toString()));
+                            //     }
+                            //     else
+                            //         lastName = item.value.toString();
+                            // }
+                        // }
                         progress.report({ message: 'data parsed' });
                         offlineDocsManager.isCollectionLoaded = true;
                         progress.report({ message: 'docs ready !' });
@@ -233,73 +231,73 @@ export class OfflineDocsManager {
         }
     }
 
-    public openTheDocsPanel(column: number, pagePath: string) {
-        this.lastOpenedPanelNumber = column;
-        if (!this.docsPanel || this.isDocsPanelDisposed) {
-            this.docsPanel = vscode.window.createWebviewPanel('ahk-offline-docs', 'Documentation', { viewColumn: vscode.ViewColumn.Two, preserveFocus: true }, {
-                enableScripts: true,
-                enableFindWidget: true,
-                enableCommandUris: true,
-                localResourceRoots: [vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs//')).with({ scheme: 'vscode-resource' })]
-            });
-            this.docsPanel.onDidDispose((e) => {
-                this.isDocsPanelDisposed = true;
-            });
-        }
+    // public openTheDocsPanel(column: number, pagePath: string) {
+    //     this.lastOpenedPanelNumber = column;
+    //     if (!this.docsPanel || this.isDocsPanelDisposed) {
+    //         this.docsPanel = vscode.window.createWebviewPanel('ahk-offline-docs', 'Documentation', { viewColumn: vscode.ViewColumn.Two, preserveFocus: true }, {
+    //             enableScripts: true,
+    //             enableFindWidget: true,
+    //             enableCommandUris: true,
+    //             localResourceRoots: [vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs//')).with({ scheme: 'vscode-resource' })]
+    //         });
+    //         this.docsPanel.onDidDispose((e) => {
+    //             this.isDocsPanelDisposed = true;
+    //         });
+    //     }
 
-        if (!this.docsPanel.visible)
-            this.docsPanel.reveal();
+    //     if (!this.docsPanel.visible)
+    //         this.docsPanel.reveal();
 
-        if (this.updateDocsTimeout)
-            clearTimeout(this.updateDocsTimeout);
-        this.updateDocsTimeout = setTimeout(() => {
-            if (!this.isDocsPanelDisposed)
-                fs.readFile(pagePath, { encoding: "utf-8" }, (err, data) => {
-                    if (!this.docsPanel)
-                        return;
-                    if (err) {
-                        vscode.window.showErrorMessage('An error has occured while opening the page: ' + err);
-                    }
-                    let url = vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs/')).with({ scheme: 'vscode-resource' });
-                    const dom = new JSDOM(data.replace('<head>', `<head>\n<base href="${url.toString()}/">`), { runScripts: "dangerously", url: vscode.Uri.file(pagePath).toString() });
-                    const aTags = dom.window.document.getElementsByTagName('a');
-                    const len = aTags.length;
-                    const basePath = url.toString();
-                    for (let i = 0; i < len; i++) {
-                        const a = aTags[i];
-                        if (
-                            !a.href.includes('about:blank') &&
-                            !a.href.includes('http:') &&
-                            !a.href.includes('https:') &&
-                            !a.href.includes('//#')) {
-                            // const commentCommandUri = vscode.Uri.parse(`command:ahk.spy`);
-                            const commentCommandUri = vscode.Uri.parse(
-                                `command:ahk.docs-go-page?${encodeURIComponent(JSON.stringify(a.href))}`
-                            );
-                            // a.href = basePath + a.href;
-                            a.href = commentCommandUri.toString();
-                            // a.removeAttribute('href');
-                            // a.setAttribute('onclick', '{command:ahk.spy}');
-                        }
-                    }
-                    let html = dom.serialize();
-                    this.docsPanel.webview.html = /*data/*ser*/html.toString();
-                });
-        }, 2000);
+    //     if (this.updateDocsTimeout)
+    //         clearTimeout(this.updateDocsTimeout);
+    //     this.updateDocsTimeout = setTimeout(() => {
+    //         if (!this.isDocsPanelDisposed)
+    //             fs.readFile(pagePath, { encoding: "utf-8" }, (err, data) => {
+    //                 if (!this.docsPanel)
+    //                     return;
+    //                 if (err) {
+    //                     vscode.window.showErrorMessage('An error has occured while opening the page: ' + err);
+    //                 }
+    //                 let url = vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs/')).with({ scheme: 'vscode-resource' });
+    //                 // const dom = new JSDOM(data.replace('<head>', `<head>\n<base href="${url.toString()}/">`), { runScripts: "dangerously", url: vscode.Uri.file(pagePath).toString() });
+    //                 // const aTags = dom.window.document.getElementsByTagName('a');
+    //                 // const len = aTags.length;
+    //                 const basePath = url.toString();
+    //                 for (let i = 0; i < len; i++) {
+    //                     // const a = aTags[i];
+    //                     if (
+    //                         !a.href.includes('about:blank') &&
+    //                         !a.href.includes('http:') &&
+    //                         !a.href.includes('https:') &&
+    //                         !a.href.includes('//#')) {
+    //                         // const commentCommandUri = vscode.Uri.parse(`command:ahk.spy`);
+    //                         const commentCommandUri = vscode.Uri.parse(
+    //                             `command:ahk.docs-go-page?${encodeURIComponent(JSON.stringify(a.href))}`
+    //                         );
+    //                         // a.href = basePath + a.href;
+    //                         a.href = commentCommandUri.toString();
+    //                         // a.removeAttribute('href');
+    //                         // a.setAttribute('onclick', '{command:ahk.spy}');
+    //                     }
+    //                 }
+    //                 let html = dom.serialize();
+    //                 this.docsPanel.webview.html = /*data/*ser*/html.toString();
+    //             });
+    //     }, 2000);
 
 
-        // let exists = false;
-        // let legacyMatchesFileUri: vscode.Uri = vscode.Uri.file("lol");
-        // return vscode.workspace.openTextDocument(encodeURI('command:vscode.previewHtml?' + JSON.stringify(vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs', 'Hotkeys.htm')))))
-        //     //  (exists ? vscode.workspace.openTextDocument(legacyMatchesFileUri.with({ scheme: 'file' })) :
-        //     //     vscode.workspace.openTextDocument({ language: 'text', content: 'lol' }))
-        //     .then(document => {
-        //         let d1 = vscode.window.showTextDocument(document, column, true);
-        //         return d1;
-        //     }).then(editor => {
-        //         let ok = true;
-        //     });
-    }
+    //     // let exists = false;
+    //     // let legacyMatchesFileUri: vscode.Uri = vscode.Uri.file("lol");
+    //     // return vscode.workspace.openTextDocument(encodeURI('command:vscode.previewHtml?' + JSON.stringify(vscode.Uri.file(path.join(this.docsDirectoryPath, 'docs', 'Hotkeys.htm')))))
+    //     //     //  (exists ? vscode.workspace.openTextDocument(legacyMatchesFileUri.with({ scheme: 'file' })) :
+    //     //     //     vscode.workspace.openTextDocument({ language: 'text', content: 'lol' }))
+    //     //     .then(document => {
+    //     //         let d1 = vscode.window.showTextDocument(document, column, true);
+    //     //         return d1;
+    //     //     }).then(editor => {
+    //     //         let ok = true;
+    //     //     });
+    // }
 
     public getDefaultStyle(): Promise<string> {
         return new Promise((r, c) => {

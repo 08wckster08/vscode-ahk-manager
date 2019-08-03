@@ -113,12 +113,12 @@ export function activate(context: vscode.ExtensionContext) {
 		}),
 
 
-		vscode.commands.registerCommand('ahk.docs-go-page', (element: string) => {
-			vscode.window.showInformationMessage('link ' + element);
-			let nPath = vscode.Uri.parse(element).with({ scheme: 'file' });
-			let destinationPath = nPath.fsPath.replace(/docs\\\.\./g, 'docs');
-			offlineDocsManager.openTheDocsPanel(offlineDocsManager.lastOpenedPanelNumber, destinationPath);
-		}),
+		// vscode.commands.registerCommand('ahk.docs-go-page', (element: string) => {
+		// 	vscode.window.showInformationMessage('link ' + element);
+		// 	let nPath = vscode.Uri.parse(element).with({ scheme: 'file' });
+		// 	let destinationPath = nPath.fsPath.replace(/docs\\\.\./g, 'docs');
+		// 	offlineDocsManager.openTheDocsPanel(offlineDocsManager.lastOpenedPanelNumber, destinationPath);
+		// }),
 
 		vscode.commands.registerCommand('ahk.hello', () => {
 			vscode.window.showInformationMessage('hello from ahk');
