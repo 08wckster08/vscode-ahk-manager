@@ -18,10 +18,9 @@ const config = {
     },
     devtool: 'source-map',
     externals: {
-        vscode: 'commonjs2 vscode', // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
+        vscode: 'commonjs vscode', // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
         validation: 'utf-8-validate',
-        bufferutil: 'bufferutil',
-        canvas: "commonjs2 canvas"
+        bufferutil: 'bufferutil'
     },
     resolve: {
         // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
